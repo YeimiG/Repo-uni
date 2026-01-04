@@ -4,10 +4,11 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { Colors } from '../constants/Colors';
 import LoginScreen from '../screens/LoginScreen';
+import NotasScreen from '../screens/NotasScreen';
 import ServiciosScreen from '../screens/ServiciosScreen';
 
 const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator();     
 
 function MainTabs() {
   return (
@@ -18,8 +19,10 @@ function MainTabs() {
     }}>
       <Tab.Screen name="Principal" component={ServiciosScreen} 
         options={{ tabBarIcon: ({color}) => <Ionicons name="home" size={28} color={color} /> }} />
-      <Tab.Screen name="Notas" component={ServiciosScreen} 
+      <Tab.Screen name="Notas" component={NotasScreen} 
         options={{ tabBarIcon: ({color}) => <Ionicons name="document-text" size={28} color={color} /> }} />
+        <Tab.Screen name="settings" component={ServiciosScreen} 
+        options={{ tabBarIcon: ({color}) => <Ionicons name="settings" size={28} color={color} /> }} />
     </Tab.Navigator>
   );
 }
