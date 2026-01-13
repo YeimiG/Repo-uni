@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { Colors } from '../constants/Colors';
 import LoginScreen from '../screens/LoginScreen';
 import NotasScreen from '../screens/NotasScreen';
+import PerfilScreen from '../screens/PerfilScreen';
 import ServiciosScreen from '../screens/ServiciosScreen';
 
 const Stack = createStackNavigator();
@@ -32,6 +33,8 @@ export default function AppNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="MainTabs" component={MainTabs} />
+      <Stack.Screen name="Servicios" component={ServiciosScreen} />
+      <Stack.Screen name="Perfil" component={PerfilScreen} />
     </Stack.Navigator>
   );
 }

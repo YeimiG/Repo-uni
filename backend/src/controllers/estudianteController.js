@@ -1,37 +1,44 @@
 const db = require("../config/db");
 
-// Obtener todos los estudiantes
+// Función para obtener todos (ya la tenías)
 exports.getEstudiantes = async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM academico.estudiante");
+    const result = await db.query("SELECT * FROM academico.Estudiante");
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Obtener estudiante por ID
+// Función para obtener por ID (ya la tenías)
 exports.getEstudianteById = async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const result = await db.query("SELECT * FROM academico.estudiante WHERE estudiante.idestudiante = $1", [id]);
+    const result = await db.query("SELECT * FROM academico.Estudiante WHERE idEstudiante = $1", [id]);
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
-// Crear estudiante
-//exports.crearEstudiante = async (req, res) => {
-//  try {
-//    const { expediente, nombre, apellidos, fecha_nacimiento, estado_academico, id_usuario, id_carrera } = req.body;
-//    const result = await db.query(
-//      `INSERT INTO estudiante (expediente, nombre, apellidos, fecha_nacimiento, estado_academico, id_usuario, id_carrera)
-//       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-//      [expediente, nombre, apellidos, fecha_nacimiento, estado_academico, id_usuario, id_carrera]
-//    );
-//    res.status(201).json(result.rows[0]);
-//  } catch (error) {
-//    res.status(500).json({ error: error.message });
-//  }
-//};
+// NUEVA FUNCIÓN: getPerfilEstudiante
+exports.getPerfilEstudiante = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const query = `
+      SELECT e.expediente, e.nombre, e.apellidos, u.correo, e.estadoAcademico, c.nombreCarrera
+      FROM academico.Estudiante e
+      INNER JOIN seguridad.Usuario u ON e.idUsuario = u.idUsuario
+      INNER JOIN academico.Carrera c ON e.idCarrera = c.idCarrera
+      WHERE e.idEstudiante = $1
+    `;
+    const result = await db.query(query, [id]);
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Perfil no encontrado" });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
