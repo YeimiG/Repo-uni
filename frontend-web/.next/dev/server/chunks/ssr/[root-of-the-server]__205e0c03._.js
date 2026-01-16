@@ -57,7 +57,7 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 [__TURBOPACK__imported__module__$5b$externals$5d2f$axios__$5b$external$5d$__$28$axios$2c$__esm_import$2c$__$5b$project$5d2f$frontend$2d$web$2f$node_modules$2f$axios$29$__] = __turbopack_async_dependencies__.then ? (await __turbopack_async_dependencies__)() : __turbopack_async_dependencies__;
 ;
 const API = __TURBOPACK__imported__module__$5b$externals$5d2f$axios__$5b$external$5d$__$28$axios$2c$__esm_import$2c$__$5b$project$5d2f$frontend$2d$web$2f$node_modules$2f$axios$29$__["default"].create({
-    baseURL: 'http://192.168.1.213:3000/api',
+    baseURL: 'http://localhost:3000/api',
     timeout: 5000
 });
 const login = async (correo, clave)=>{
@@ -68,146 +68,36 @@ const login = async (correo, clave)=>{
     return response.data;
 };
 const getMateriasCatedratico = async (idCatedratico)=>{
-    try {
-        const response = await API.get(`/catedratico/materias/${idCatedratico}`);
-        return response.data;
-    } catch (error) {
-        console.log('Backend no disponible, usando datos de prueba');
-        return [
-            {
-                idmateria: 1,
-                codigomateria: 'MAT101',
-                nombremateria: 'Matemática I',
-                idgrupo: 1,
-                numerogrupo: '01'
-            },
-            {
-                idmateria: 2,
-                codigomateria: 'ING101',
-                nombremateria: 'Inglés I',
-                idgrupo: 2,
-                numerogrupo: '02'
-            }
-        ];
-    }
+    const response = await API.get(`/catedratico/materias/${idCatedratico}`);
+    return response.data;
 };
 const getEstudiantesGrupo = async (idGrupo)=>{
-    try {
-        const response = await API.get(`/catedratico/estudiantes/${idGrupo}`);
-        return response.data;
-    } catch (error) {
-        console.log('Backend no disponible, usando datos de prueba');
-        return [
-            {
-                idestudiante: 1,
-                expediente: 'E001',
-                nombre: 'Juan',
-                apellidos: 'Pérez',
-                nota1: 8.5,
-                nota2: 7.0,
-                nota3: 9.0,
-                notafinal: 8.17,
-                idinscripcion: 1
-            },
-            {
-                idestudiante: 2,
-                expediente: 'E002',
-                nombre: 'María',
-                apellidos: 'García',
-                nota1: null,
-                nota2: null,
-                nota3: null,
-                notafinal: null,
-                idinscripcion: 2
-            }
-        ];
-    }
+    const response = await API.get(`/catedratico/estudiantes/${idGrupo}`);
+    return response.data;
 };
 const ingresarNotas = async (data)=>{
-    try {
-        const response = await API.post('/catedratico/notas', data);
-        return response.data;
-    } catch (error) {
-        console.log('Backend no disponible');
-        const notaFinal = ((data.nota1 + data.nota2 + data.nota3) / 3).toFixed(2);
-        return {
-            ...data,
-            notafinal: notaFinal
-        };
-    }
+    const response = await API.post('/catedratico/notas', data);
+    return response.data;
 };
 const getUsuarios = async ()=>{
-    try {
-        const response = await API.get('/admin/usuarios');
-        return response.data;
-    } catch (error) {
-        console.log('Backend no disponible, usando datos de prueba');
-        return [
-            {
-                idusuario: 1,
-                correo: 'admin@ieproes.edu.sv',
-                nombrerol: 'Administrador'
-            },
-            {
-                idusuario: 2,
-                correo: 'cate@ieproes.edu.sv',
-                nombrerol: 'Catedrático'
-            },
-            {
-                idusuario: 3,
-                correo: 'est@ieproes.edu.sv',
-                nombrerol: 'Estudiante'
-            }
-        ];
-    }
+    const response = await API.get('/admin/usuarios');
+    return response.data;
 };
 const crearUsuario = async (data)=>{
-    try {
-        const response = await API.post('/admin/usuarios', data);
-        return response.data;
-    } catch (error) {
-        console.log('Backend no disponible');
-        return {
-            idusuario: Math.random(),
-            ...data
-        };
-    }
+    const response = await API.post('/admin/usuarios', data);
+    return response.data;
 };
 const crearEstudiante = async (data)=>{
-    try {
-        const response = await API.post('/admin/estudiantes', data);
-        return response.data;
-    } catch (error) {
-        console.log('Backend no disponible');
-        return {
-            idestudiante: Math.random(),
-            ...data
-        };
-    }
+    const response = await API.post('/admin/estudiantes', data);
+    return response.data;
 };
 const crearCatedratico = async (data)=>{
-    try {
-        const response = await API.post('/admin/catedraticos', data);
-        return response.data;
-    } catch (error) {
-        console.log('Backend no disponible');
-        return {
-            idcatedratico: Math.random(),
-            ...data
-        };
-    }
+    const response = await API.post('/admin/catedraticos', data);
+    return response.data;
 };
 const crearMateria = async (data)=>{
-    try {
-        const response = await API.post('/admin/materias', data);
-        return response.data;
-    } catch (error) {
-        console.log('Backend no disponible');
-        return {
-            idmateria: Math.random(),
-            ...data
-        };
-    }
+    const response = await API.post('/admin/materias', data);
+    return response.data;
 };
 const __TURBOPACK__default__export__ = API;
 __turbopack_async_result__();

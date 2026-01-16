@@ -1,15 +1,7 @@
-[00:00:02.920] Server  LOG     ✓ Ready in 1888ms
-[00:00:12.077] Server  LOG     ○ Compiling / ...
-[00:04:01.574] Server  LOG     ✓ Compiled in 34ms
-[00:04:19.425] Browser ERROR   unhandledRejection: AxiosError: timeout of 5000ms exceeded
-[00:05:06.349] Server  LOG     ✓ Compiled in 26ms
-[00:05:11.364] Browser LOG     Backend no disponible, usando datos de prueba
-[00:05:11.364] Browser LOG     Backend no disponible, usando datos de prueba
-[00:05:27.352] Browser LOG     Backend no disponible, usando datos de prueba
-[00:07:03.244] Browser LOG     Backend no disponible
-[00:07:05.604] Browser LOG     Backend no disponible
-[00:07:05.604] Browser LOG     Backend no disponible
-[00:07:08.347] Browser LOG     Backend no disponible, usando datos de prueba
-[00:07:09.480] Browser LOG     Backend no disponible, usando datos de prueba
-[00:07:10.713] Browser LOG     Backend no disponible, usando datos de prueba
-[00:08:07.067] Browser LOG     Backend no disponible, usando datos de prueba
+[00:00:02.530] Server  LOG     ✓ Ready in 1676ms
+[00:00:43.988] Browser ERROR   unhandledRejection: AxiosError: Request failed with status code 404
+[00:01:16.695] Browser ERROR   unhandledRejection: AxiosError: Request failed with status code 404
+[00:01:21.941] Browser ERROR   unhandledRejection: AxiosError: Request failed with status code 404
+[00:01:23.508] Browser ERROR   unhandledRejection: AxiosError: Request failed with status code 404
+[00:01:25.064] Browser ERROR   unhandledRejection: AxiosError: Request failed with status code 404
+[00:02:11.278] Browser ERROR   {"code":"ERR_BAD_REQUEST","config":{"adapter":["xhr","http","fetch"],"allowAbsoluteUrls":true,"baseURL":"http://localhost:3000/api","env":{},"headers":{"Accept":"application/json, text/plain, */*"},"maxBodyLength":-1,"maxContentLength":-1,"method":"get","timeout":5000,"transformRequest":[null],"transformResponse":[null],"transitional":{"clarifyTimeoutError":false,"forcedJSONParsing":true,"silentJSONParsing":true},"url":"/catedratico/materias/1","xsrfCookieName":"XSRF-TOKEN","xsrfHeaderName":"X-XSRF-TOKEN"},"message":"Request failed with status code 404","name":"AxiosError","stack":"AxiosError: Request failed with status code 404\n    at settle (http://localhost:3000/_next/static/chunks/dc747_axios_lib_3fc8917a._.js:1954:16)\n    at XMLHttpRequest.onloadend (http://localhost:3000/_next/static/chunks/dc747_axios_lib_3fc8917a._.js:2469:186)\n    at Axios.request (http://localhost:3000/_next/static/chunks/dc747_axios_lib_3fc8917a._.js:3273:49)\n    at async getMateriasCatedratico (http://localhost:3000/_next/static/chunks/%5Broot-of-the-server%5D__7a987ddf._.js:504:22)\n    at async cargarMaterias (http://localhost:3000/_next/static/chunks/%5Broot-of-the-server%5D__be9a38f8._.js:574:26)","status":404}
