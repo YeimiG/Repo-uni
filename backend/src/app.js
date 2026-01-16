@@ -12,16 +12,14 @@ app.use(express.json());
 const estudianteRoutes = require("./routes/estudianteRoutes");
 const materiaRoutes = require("./routes/materiaRoutes");
 const authRoutes = require("./routes/authRoutes");
-//const grupoRoutes = require("./routes/grupoRoutes");
-//const inscripcionRoutes = require("./routes/inscripcionRoutes");
-//const notasRoutes = require("./routes/notasRoutes");
+const catedraticoRoutes = require("./routes/catedraticoRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 // Use Routes
 app.use("/api/estudiantes", estudianteRoutes);
 app.use("/api/materias", materiaRoutes);
 app.use("/api/auth", authRoutes);
-//app.use("/api/grupos", grupoRoutes);
-//app.use("/api/inscripciones", inscripcionRoutes);
-//app.use("/api/notas", notasRoutes);
+app.use("/api/catedratico", catedraticoRoutes);
+app.use("/api/admin", adminRoutes);
 
 module.exports = app;

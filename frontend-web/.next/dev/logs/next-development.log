@@ -1,0 +1,15 @@
+[00:00:02.920] Server  LOG     ✓ Ready in 1888ms
+[00:00:12.077] Server  LOG     ○ Compiling / ...
+[00:04:01.574] Server  LOG     ✓ Compiled in 34ms
+[00:04:19.425] Browser ERROR   unhandledRejection: AxiosError: timeout of 5000ms exceeded
+[00:05:06.349] Server  LOG     ✓ Compiled in 26ms
+[00:05:11.364] Browser LOG     Backend no disponible, usando datos de prueba
+[00:05:11.364] Browser LOG     Backend no disponible, usando datos de prueba
+[00:05:27.352] Browser LOG     Backend no disponible, usando datos de prueba
+[00:07:03.244] Browser LOG     Backend no disponible
+[00:07:05.604] Browser LOG     Backend no disponible
+[00:07:05.604] Browser LOG     Backend no disponible
+[00:07:08.347] Browser LOG     Backend no disponible, usando datos de prueba
+[00:07:09.480] Browser LOG     Backend no disponible, usando datos de prueba
+[00:07:10.713] Browser LOG     Backend no disponible, usando datos de prueba
+[00:08:07.067] Browser LOG     Backend no disponible, usando datos de prueba

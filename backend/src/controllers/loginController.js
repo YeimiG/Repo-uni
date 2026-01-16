@@ -5,21 +5,33 @@ exports.login = async (req, res) => {
   const { correo, clave } = req.body;
 
   try {
-    // Buscamos al usuario y unimos con los datos del estudiante
     const query = `
-      SELECT u.idUsuario, u.correo, e.nombre, e.apellidos, e.idEstudiante, r.nombreRol
+      SELECT u.idUsuario, u.correo, r.nombreRol, r.idRol,
+             e.idEstudiante, e.nombre as nombreEstudiante, e.apellidos as apellidosEstudiante,
+             c.idCatedratico, c.nombre as nombreCatedratico, c.apellidos as apellidosCatedratico
       FROM seguridad.Usuario u
-      INNER JOIN academico.Estudiante e ON u.idUsuario = e.idUsuario
       INNER JOIN seguridad.Rol r ON u.idRol = r.idRol
+      LEFT JOIN academico.Estudiante e ON u.idUsuario = e.idUsuario
+      LEFT JOIN academico.Catedratico c ON u.idUsuario = c.idUsuario
       WHERE u.correo = $1 AND u.clave = $2
     `;
 
     const result = await db.query(query, [correo, clave]);
 
     if (result.rows.length > 0) {
+      const user = result.rows[0];
       res.json({
         success: true,
-        usuario: result.rows[0]
+        usuario: {
+          idUsuario: user.idusuario,
+          correo: user.correo,
+          rol: user.nombrerol,
+          idRol: user.idrol,
+          idEstudiante: user.idestudiante,
+          idCatedratico: user.idcatedratico,
+          nombre: user.nombreestudiante || user.nombrecatedratico,
+          apellidos: user.apellidosestudiante || user.apellidoscatedratico
+        }
       });
     } else {
       res.status(401).json({ success: false, message: "Credenciales incorrectas" });
