@@ -23,45 +23,6 @@ globalThis.__BUILD_MANIFEST = {
       "static/chunks/[root-of-the-server]__0bf0af4c._.js",
       "static/chunks/frontend-web_pages__app_2da965e7._.js",
       "static/chunks/turbopack-frontend-web_pages__app_ff8b55ab._.js"
-    ],
-    "/_error": [
-      "static/chunks/dc747_next_dist_compiled_e6e93a9a._.js",
-      "static/chunks/dc747_next_dist_shared_lib_a18143d6._.js",
-      "static/chunks/dc747_next_dist_client_f65de89f._.js",
-      "static/chunks/dc747_next_dist_35b54569._.js",
-      "static/chunks/dc747_next_error_2831e72c.js",
-      "static/chunks/[next]_entry_page-loader_ts_26df67de._.js",
-      "static/chunks/dc747_react-dom_c483fa0b._.js",
-      "static/chunks/dc747_b21329f5._.js",
-      "static/chunks/[root-of-the-server]__69ab9a9d._.js",
-      "static/chunks/frontend-web_pages__error_2da965e7._.js",
-      "static/chunks/turbopack-frontend-web_pages__error_fb9d18cf._.js"
-    ],
-    "/admin/dashboard": [
-      "static/chunks/dc747_next_dist_compiled_89c90fb0._.js",
-      "static/chunks/dc747_next_dist_shared_lib_1588b01e._.js",
-      "static/chunks/dc747_next_dist_client_f65de89f._.js",
-      "static/chunks/dc747_next_dist_4545ea7e._.js",
-      "static/chunks/dc747_next_router_44dd7539.js",
-      "static/chunks/dc747_react-dom_c483fa0b._.js",
-      "static/chunks/dc747_axios_lib_3fc8917a._.js",
-      "static/chunks/dc747_635c17f9._.js",
-      "static/chunks/[root-of-the-server]__7a987ddf._.js",
-      "static/chunks/frontend-web_pages_admin_dashboard_2da965e7.js",
-      "static/chunks/turbopack-frontend-web_pages_admin_dashboard_d3fbf472.js"
-    ],
-    "/catedratico/mis-materias": [
-      "static/chunks/dc747_next_dist_compiled_89c90fb0._.js",
-      "static/chunks/dc747_next_dist_shared_lib_1588b01e._.js",
-      "static/chunks/dc747_next_dist_client_f65de89f._.js",
-      "static/chunks/dc747_next_dist_4545ea7e._.js",
-      "static/chunks/dc747_next_router_44dd7539.js",
-      "static/chunks/dc747_react-dom_c483fa0b._.js",
-      "static/chunks/dc747_axios_lib_3fc8917a._.js",
-      "static/chunks/dc747_635c17f9._.js",
-      "static/chunks/[root-of-the-server]__be9a38f8._.js",
-      "static/chunks/frontend-web_pages_catedratico_mis-materias_2da965e7.js",
-      "static/chunks/turbopack-frontend-web_pages_catedratico_mis-materias_b868d472.js"
     ]
   },
   "devFiles": [],
