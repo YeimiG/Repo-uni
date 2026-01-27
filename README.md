@@ -1,6 +1,6 @@
-# 🎓 Sistema de Gestión Académica
+# 🎓 Sistema de Gestión Académica IEPROES
 
-Sistema completo de gestión académica que incluye aplicación móvil, panel web administrativo y API backend.
+Sistema completo de gestión académica que incluye aplicación móvil, panel web administrativo y API backend para la institución educativa IEPROES.
 
 ## 📋 Descripción del Proyecto
 
@@ -163,11 +163,14 @@ Estructura principal:
 
 ## 📝 Licencia
 
-Este proyecto es privad.
+Este proyecto es privado y pertenece a la institución IEPROES.
 
 ## 📞 Soporte
 
+Para soporte técnico o consultas:
+- 📧 Email: soporte@ieproes.edu
+- 📱 WhatsApp: +XXX-XXXX-XXXX
 
 ---
 
-**🎯 Sistema de Gestión Académica**
+**🎯 Desarrollado para IEPROES - Sistema de Gestión Académica**
