@@ -1,42 +1,67 @@
-// backend/src/controllers/authController.js
 const db = require("../config/db");
+const jwt = require("jsonwebtoken");
 
 exports.login = async (req, res) => {
   const { correo, clave } = req.body;
 
   try {
-    const query = `
-      SELECT u.idUsuario, u.correo, r.nombreRol, r.idRol,
-             e.idEstudiante, e.nombre as nombreEstudiante, e.apellidos as apellidosEstudiante,
-             c.idCatedratico, c.nombre as nombreCatedratico, c.apellidos as apellidosCatedratico
-      FROM seguridad.Usuario u
-      INNER JOIN seguridad.Rol r ON u.idRol = r.idRol
-      LEFT JOIN academico.Estudiante e ON u.idUsuario = e.idUsuario
-      LEFT JOIN academico.Catedratico c ON u.idUsuario = c.idUsuario
-      WHERE u.correo = $1 AND u.clave = $2
-    `;
+    const result = await db.query(
+      "SELECT * FROM seguridad.usuario where correo = $1",
+      [correo],
+    );
 
-    const result = await db.query(query, [correo, clave]);
-
-    if (result.rows.length > 0) {
-      const user = result.rows[0];
-      res.json({
-        success: true,
-        usuario: {
-          idUsuario: user.idusuario,
-          correo: user.correo,
-          rol: user.nombrerol,
-          idRol: user.idrol,
-          idEstudiante: user.idestudiante,
-          idCatedratico: user.idcatedratico,
-          nombre: user.nombreestudiante || user.nombrecatedratico,
-          apellidos: user.apellidosestudiante || user.apellidoscatedratico
-        }
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        success: false,
+        message: "Credenciales incorrectas",
       });
-    } else {
-      res.status(401).json({ success: false, message: "Credenciales incorrectas" });
     }
+
+    const usuario = result.rows[0];
+
+    // 🚫 Bloquear estudiantes
+    if (usuario.rol === "Estudiante") {
+      return res.status(403).json({
+        success: false,
+        message: "Acceso no autorizado",
+      });
+    }
+
+    // 🔑 COMPARACIÓN DIRECTA (texto plano)
+    if (clave !== usuario.clave) {
+      return res.status(401).json({
+        success: false,
+        message: "Credenciales incorrectas",
+      });
+    }
+
+    // 🔐 JWT
+    const token = jwt.sign(
+      {
+        idUsuario: usuario.id_usuario,
+        rol: usuario.rol,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "8h" },
+    );
+
+    res.json({
+      success: true,
+      token,
+      usuario: {
+        idUsuario: usuario.id_usuario,
+        correo: usuario.correo,
+        rol: usuario.rol,
+        nombre: usuario.nombre,
+        apellidos: usuario.apellidos,
+        primerLogin: usuario.primer_login,
+      },
+    });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("ERROR LOGIN:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error interno del servidor",
+    });
   }
 };

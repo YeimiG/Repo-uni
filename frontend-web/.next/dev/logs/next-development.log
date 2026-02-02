@@ -1,3 +1,0 @@
-[00:00:05.850] Server  LOG     ✓ Ready in 4.2s
-[00:00:25.465] Server  WARN    ⚠ Cross origin request detected from 192.168.33.1 to /_next/* resource. In a future major version of Next.js, you will need to explicitly configure "allowedDevOrigins" in next.config to allow this.
-Read more: https://nextjs.org/docs/app/api-reference/config/next-config-js/allowedDevOrigins
