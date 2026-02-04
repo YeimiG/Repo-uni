@@ -1,0 +1,77 @@
+/* Colores médicos */
+:root {
+  --medical-green: #10b981;
+  --medical-blue: #3b82f6;
+  --medical-white: #ffffff;
+  --medical-light: #f0fdf4;
+  --medical-dark: #065f46;
+}
+
+/* Fondo médico */
+.medical-bg {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);
+  position: relative;
+}
+
+/* Patrón cruz */
+.medical-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(16, 185, 129, 0.1) 2px, transparent 2px),
+    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.1) 2px, transparent 2px);
+  background-size: 50px 50px;
+}
+
+/* Tarjeta médica */
+.medical-card {
+  background: var(--medical-white);
+  border: 2px solid var(--medical-green);
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(16, 185, 129, 0.15);
+}
+
+/* Botón primario */
+.btn-medical {
+  background: var(--medical-green);
+  color: var(--medical-white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-medical:hover {
+  background: var(--medical-dark);
+  transform: translateY(-2px);
+}
+
+/* Botón secundario */
+.btn-medical-outline {
+  background: transparent;
+  color: var(--medical-green);
+  border: 2px solid var(--medical-green);
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-medical-outline:hover {
+  background: var(--medical-light);
+  transform: translateY(-2px);
+}
+
+/* Texto médico */
+.text-medical {
+  color: var(--medical-green);
+}
+
+.text-medical-dark {
+  color: var(--medical-dark);
+}
