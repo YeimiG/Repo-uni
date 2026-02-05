@@ -1,7 +1,24 @@
-/* dashboard ieproes */
+"use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import { logout } from "@/services/auth.service";
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { isAuth, user } = useAuth();
+
+  useEffect(() => {
+    if (!isAuth) {
+      router.push("/login");
+    }
+  }, [isAuth, router]);
+
+  if (!isAuth || !user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* header dashboard */}
@@ -15,8 +32,10 @@ export default function DashboardPage() {
               <h1 className="text-2xl font-bold text-ieproes-dark">IEPROES Dashboard</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Bienvenido, Admin</span>
-              <button className="btn-secondary text-sm">
+              <span className="text-sm text-gray-600">
+                Bienvenido, {user.nombre} {user.apellidos} ({user.rol})
+              </span>
+              <button onClick={logout} className="btn-secondary text-sm">
                 Cerrar Sesión
               </button>
             </div>

@@ -1,24 +1,45 @@
 /* auth service */
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-export async function login(email: string, password: string) {
-  const { data } = await axios.post(`${API_URL}/auth/login`, {
-    email,
-    password,
-  });
-
-  localStorage.setItem("token", data.token);
+interface LoginResponse {
+  success: boolean;
+  token: string;
+  usuario: {
+    idUsuario: number;
+    correo: string;
+    rol: string;
+    nombre: string;
+    apellidos: string;
+    primerLogin: boolean;
+  };
 }
 
-export async function register(email: string, password: string) {
-  await axios.post(`${API_URL}/auth/register`, {
-    email,
-    password,
+export async function login(correo: string, clave: string) {
+  const { data } = await axios.post<LoginResponse>(`${API_URL}/api/auth/login`, {
+    correo,
+    clave,
   });
+
+  if (data.success) {
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(data.usuario));
+    return data;
+  }
+  throw new Error("Login fallido");
 }
 
 export function logout() {
   localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.location.href = "/login";
+}
+
+export function getUser() {
+  if (typeof window !== "undefined") {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  }
+  return null;
 }

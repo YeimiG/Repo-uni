@@ -1,6 +1,9 @@
 /* user type */
 export interface User {
-  id: string;
-  email: string;
-  role: "admin" | "user";
+  idUsuario: number;
+  correo: string;
+  rol: "Administrador" | "Catedrático" | "Estudiante";
+  nombre: string;
+  apellidos: string;
+  primerLogin?: boolean;
 }
