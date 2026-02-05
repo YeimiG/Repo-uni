@@ -1,4 +1,67 @@
-/* tailwind css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* variables globales */
+:root {
+  --ieproes-primary: #78D1F5;
+  --ieproes-light: #D1E9F6;
+  --ieproes-dark: #4A90E2;
+}
+
+/* estilos base */
+body {
+  @apply bg-gray-50 text-gray-900 font-sans;
+}
+
+h1, h2, h3 {
+  @apply font-bold text-gray-800;
+}
+
+/* botones ieproes */
+.btn-ieproes {
+  @apply bg-blue-400 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg;
+}
+
+.btn-secondary {
+  @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-all duration-200;
+}
+
+.btn-outline {
+  @apply border-2 border-blue-400 text-blue-400 hover:bg-blue-400 hover:text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200;
+}
+
+/* inputs ieproes */
+.input-ieproes {
+  @apply w-full px-4 py-3 bg-blue-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200;
+}
+
+/* cards ieproes */
+.card-ieproes {
+  @apply bg-white rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-shadow duration-200;
+}
+
+/* gradientes ieproes */
+.gradient-ieproes {
+  @apply bg-gradient-to-br from-blue-400 via-blue-600 to-blue-800;
+}
+
+/* navegacion */
+.nav-link {
+  @apply text-gray-700 hover:text-blue-600 px-4 py-2 rounded-md font-medium transition-colors duration-200;
+}
+
+/* badges */
+.badge-success {
+  @apply bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-error {
+  @apply bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.badge-info {
+  @apply bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium;
+}
