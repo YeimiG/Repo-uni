@@ -3,13 +3,30 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission, PERMISSIONS } from "@/utils/permissions";
 
 export default function UsersPage() {
+  const { user } = useAuth();
   const [users] = useState([
     { id: 1, name: "Juan Pérez", email: "juan@ieproes.edu", role: "Estudiante", status: "Activo" },
     { id: 2, name: "María García", email: "maria@ieproes.edu", role: "Catedrático", status: "Activo" },
     { id: 3, name: "Carlos López", email: "carlos@ieproes.edu", role: "Administrador", status: "Activo" },
   ]);
+
+  if (!hasPermission(user?.rol, PERMISSIONS.MANAGE_USERS)) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="card-ieproes text-center">
+          <h2 className="text-xl font-bold text-error mb-4">Acceso Denegado</h2>
+          <p className="text-gray-600 mb-4">Solo administradores pueden gestionar usuarios</p>
+          <Link href="/dashboard" className="btn-ieproes">
+            Volver al Dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

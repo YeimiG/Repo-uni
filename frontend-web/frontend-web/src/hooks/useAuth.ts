@@ -1,33 +1,20 @@
-/* auth hook */
-import { useState } from "react";
 import { getUser } from "@/services/auth.service";
+import { useState } from "react";
 
-interface User {
+export interface User {
   idUsuario: number;
   correo: string;
   rol: string;
   nombre: string;
   apellidos: string;
+  primerLogin: boolean;
 }
 
 export function useAuth() {
-  const [token] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("token");
-    }
-    return null;
-  });
-  
-  const [user] = useState<User | null>(() => {
-    if (typeof window !== "undefined") {
-      return getUser();
-    }
-    return null;
-  });
+  const [user] = useState<User | null>(() => getUser());
 
   return {
-    isAuth: !!token,
+    isAuth: !!user,
     user,
-    token,
   };
 }

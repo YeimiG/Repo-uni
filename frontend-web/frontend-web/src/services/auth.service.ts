@@ -5,7 +5,6 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 interface LoginResponse {
   success: boolean;
-  token: string;
   usuario: {
     idUsuario: number;
     correo: string;
@@ -17,16 +16,19 @@ interface LoginResponse {
 }
 
 export async function login(correo: string, clave: string) {
-  const { data } = await axios.post<LoginResponse>(`${API_URL}/api/auth/login`, {
-    correo,
-    clave,
-  });
+  const { data } = await axios.post<LoginResponse>(
+    `${API_URL}/api/auth/login`,
+    {
+      correo,
+      clave,
+    },
+  );
 
   if (data.success) {
-    localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.usuario));
     return data;
   }
+
   throw new Error("Login fallido");
 }
 

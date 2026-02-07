@@ -6,7 +6,10 @@ exports.login = async (req, res) => {
 
   try {
     const result = await db.query(
-      "SELECT * FROM seguridad.usuario where correo = $1",
+      `SELECT u.idusuario, u.correo, u.clave, r.nombrerol as rol
+       FROM seguridad.usuario u
+       INNER JOIN seguridad.rol r ON u.idrol = r.idrol
+       WHERE u.correo = $1`,
       [correo],
     );
 
@@ -20,7 +23,7 @@ exports.login = async (req, res) => {
     const usuario = result.rows[0];
 
     // 🚫 Bloquear estudiantes
-    if (usuario.rol === "Estudiante") {
+    if (usuario.rol === "Estudiante" || usuario.rol === "ESTUDIANTE") {
       return res.status(403).json({
         success: false,
         message: "Acceso no autorizado",
@@ -38,7 +41,7 @@ exports.login = async (req, res) => {
     // 🔐 JWT
     const token = jwt.sign(
       {
-        idUsuario: usuario.id_usuario,
+        idUsuario: usuario.idusuario,
         rol: usuario.rol,
       },
       process.env.JWT_SECRET,
@@ -49,12 +52,12 @@ exports.login = async (req, res) => {
       success: true,
       token,
       usuario: {
-        idUsuario: usuario.id_usuario,
+        idUsuario: usuario.idusuario,
         correo: usuario.correo,
         rol: usuario.rol,
-        nombre: usuario.nombre,
-        apellidos: usuario.apellidos,
-        primerLogin: usuario.primer_login,
+        nombre: usuario.correo.split('@')[0],
+        apellidos: '',
+        primerLogin: false,
       },
     });
   } catch (error) {

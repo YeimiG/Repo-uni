@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { login } from "@/services/auth.service";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,17 +18,20 @@ export default function LoginPage() {
 
     try {
       const response = await login(correo, clave);
-      
+
       // Verificar que sea Administrador o Catedrático
-      if (response.usuario.rol === "Administrador" || response.usuario.rol === "Catedrático") {
+      if (
+        response.usuario.rol === "Administrador" ||
+        response.usuario.rol === "Catedrático"
+      ) {
         router.push("/dashboard");
       } else {
         setError("Acceso no autorizado. Solo administradores y catedráticos.");
-        localStorage.removeItem("token");
+        localStorage.removeItem("user");
         localStorage.removeItem("user");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al iniciar sesión");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
@@ -46,7 +49,9 @@ export default function LoginPage() {
             </div>
             <h1 className="text-3xl font-bold text-blue-600">IEPROES</h1>
           </div>
-          <h2 className="text-xl font-semibold text-gray-800">Iniciar Sesión</h2>
+          <h2 className="text-xl font-semibold text-gray-800">
+            Iniciar Sesión
+          </h2>
           <p className="text-gray-600 mt-2">Panel Administrativo</p>
         </div>
 
@@ -60,7 +65,10 @@ export default function LoginPage() {
         {/* formulario login */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Correo Institucional
             </label>
             <input
@@ -76,7 +84,10 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Contraseña
             </label>
             <input
@@ -92,8 +103,8 @@ export default function LoginPage() {
           </div>
 
           {/* boton login */}
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn-ieproes w-full"
             disabled={loading}
           >
