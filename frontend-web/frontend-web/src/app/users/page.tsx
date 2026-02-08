@@ -1,18 +1,71 @@
 /* usuarios ieproes */
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission, PERMISSIONS } from "@/utils/permissions";
+import { getUsuarios } from "@/services/admin.service";
+import { exportToCSV } from "@/utils/export";
+import { useToast } from "@/hooks/useToast";
+import Toast from "@/components/Toast";
+
+interface Usuario {
+  idusuario: number;
+  correo: string;
+  rol: string;
+  nombre: string;
+}
 
 export default function UsersPage() {
   const { user } = useAuth();
-  const [users] = useState([
-    { id: 1, name: "Juan Pérez", email: "juan@ieproes.edu", role: "Estudiante", status: "Activo" },
-    { id: 2, name: "María García", email: "maria@ieproes.edu", role: "Catedrático", status: "Activo" },
-    { id: 3, name: "Carlos López", email: "carlos@ieproes.edu", role: "Administrador", status: "Activo" },
-  ]);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const { toast, showToast, hideToast } = useToast();
+
+  useEffect(() => {
+    async function loadUsuarios() {
+      setLoading(true);
+      const response = await getUsuarios();
+      if (response.success) {
+        setUsuarios(response.usuarios);
+      }
+      setLoading(false);
+    }
+    loadUsuarios();
+  }, []);
+
+  const filteredUsuarios = usuarios.filter(u => 
+    u.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.rol.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  function handleExportCSV() {
+    if (filteredUsuarios.length === 0) {
+      showToast('No hay usuarios para exportar', 'warning');
+      return;
+    }
+    exportToCSV(filteredUsuarios, 'usuarios_ieproes');
+    showToast('Usuarios exportados correctamente', 'success');
+  }
+
+  function handleImportCSV(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const lines = text.split('\n');
+        showToast(`Archivo leído: ${lines.length - 1} registros`, 'info');
+      } catch (error) {
+        showToast('Error al leer el archivo CSV', 'error');
+      }
+    };
+    reader.readAsText(file);
+  }
 
   if (!hasPermission(user?.rol, PERMISSIONS.MANAGE_USERS)) {
     return (
@@ -47,11 +100,13 @@ export default function UsersPage() {
         {/* acciones */}
         <div className="mb-6 flex justify-between items-center">
           <div className="flex space-x-4">
-            <button className="btn-ieproes">
-              Nuevo Usuario
-            </button>
-            <button className="btn-outline">
-              Importar CSV
+            <button className="btn-ieproes">Nuevo Usuario</button>
+            <label className="btn-outline cursor-pointer">
+              📥 Importar CSV
+              <input type="file" accept=".csv" onChange={handleImportCSV} className="hidden" />
+            </label>
+            <button onClick={handleExportCSV} className="btn-outline">
+              📤 Exportar CSV
             </button>
           </div>
           <div className="flex space-x-2">
@@ -59,75 +114,55 @@ export default function UsersPage() {
               type="search" 
               placeholder="Buscar usuarios..." 
               className="input-ieproes max-w-xs"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
 
         {/* tabla usuarios */}
         <div className="card-ieproes">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Usuario
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Rol
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-ieproes-primary rounded-full flex items-center justify-center mr-3">
-                          <div className="w-5 h-5 bg-white rounded-full"></div>
-                        </div>
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {user.email}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`badge-${
-                        user.role === 'Estudiante' ? 'info' : 
-                        user.role === 'Catedrático' ? 'success' : 'warning'
-                      }`}>
-                        {user.role}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="badge-success">{user.status}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button className="text-ieproes-primary hover:text-ieproes-dark">
-                          Editar
-                        </button>
-                        <button className="text-error hover:text-red-700">
-                          Eliminar
-                        </button>
-                      </div>
-                    </td>
+          {loading ? (
+            <div className="text-center py-8 text-gray-500">Cargando usuarios...</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Usuario</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rol</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredUsuarios.map((usuario) => (
+                    <tr key={usuario.idusuario} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-gray-900">{usuario.nombre}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {usuario.correo}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`badge-${
+                          usuario.rol.includes('Estudiante') ? 'info' : 
+                          usuario.rol === 'Catedrático' ? 'success' : 'warning'
+                        }`}>
+                          {usuario.rol}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </main>
+      
+      {toast.show && (
+        <Toast message={toast.message} type={toast.type} onClose={hideToast} />
+      )}
     </div>
   );
 }

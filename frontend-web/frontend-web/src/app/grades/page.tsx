@@ -5,6 +5,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
 import { hasPermission, PERMISSIONS, isAdmin } from "@/utils/permissions";
 import { getMaterias, getEstudiantesPorGrupo, guardarNotas } from "@/services/materias.service";
+import Toast from "@/components/Toast";
+import { useToast } from "@/hooks/useToast";
 
 interface StudentGrade {
   idestudiante: number;
@@ -27,6 +29,7 @@ export default function GradesPage() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const grupoParam = searchParams?.get('grupo');
+  const { toast, showToast, hideToast } = useToast();
   
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [selectedGrupo, setSelectedGrupo] = useState(grupoParam || "");
@@ -67,12 +70,36 @@ export default function GradesPage() {
   };
 
   const handleGradeChange = (index: number, field: keyof StudentGrade, value: string) => {
+    const numValue = parseFloat(value);
+    
+    // Validación: solo números entre 0 y 10 con máximo 2 decimales
+    if (value && (isNaN(numValue) || numValue < 0 || numValue > 10)) {
+      return;
+    }
+    
+    // Validar máximo 2 decimales
+    if (value.includes('.') && value.split('.')[1]?.length > 2) {
+      return;
+    }
+    
     const newStudents = [...students];
-    newStudents[index] = { ...newStudents[index], [field]: parseFloat(value) || 0 };
+    newStudents[index] = { ...newStudents[index], [field]: numValue || 0 };
     setStudents(newStudents);
   };
 
   async function handleSaveGrade(student: StudentGrade, index: number) {
+    // Validación antes de guardar
+    if (student.parcial1 < 0 || student.parcial1 > 10 ||
+        student.parcial2 < 0 || student.parcial2 > 10 ||
+        student.examenfinal < 0 || student.examenfinal > 10) {
+      showToast('Las notas deben estar entre 0 y 10', 'error');
+      return;
+    }
+    
+    if (!confirm(`¿Guardar notas de ${student.nombre}?`)) {
+      return;
+    }
+    
     setSaving(index);
     const response = await guardarNotas({
       idinscripcion: student.idinscripcion,
@@ -82,10 +109,10 @@ export default function GradesPage() {
     });
     
     if (response.success) {
-      alert('✅ Notas guardadas correctamente');
+      showToast('Notas guardadas correctamente', 'success');
       await loadEstudiantes();
     } else {
-      alert('❌ Error al guardar notas');
+      showToast('Error al guardar notas', 'error');
     }
     setSaving(null);
   }
@@ -192,7 +219,7 @@ export default function GradesPage() {
                               type="number" 
                               className="input-ieproes w-16 text-center" 
                               placeholder="0-10" 
-                              step="0.1" 
+                              step="0.01" 
                               min="0" 
                               max="10"
                               value={student.parcial1 || ''}
@@ -204,7 +231,7 @@ export default function GradesPage() {
                               type="number" 
                               className="input-ieproes w-16 text-center" 
                               placeholder="0-10" 
-                              step="0.1" 
+                              step="0.01" 
                               min="0" 
                               max="10"
                               value={student.parcial2 || ''}
@@ -216,7 +243,7 @@ export default function GradesPage() {
                               type="number" 
                               className="input-ieproes w-16 text-center" 
                               placeholder="0-10" 
-                              step="0.1" 
+                              step="0.01" 
                               min="0" 
                               max="10"
                               value={student.examenfinal || ''}
@@ -257,6 +284,14 @@ export default function GradesPage() {
           </div>
         )}
       </main>
+      
+      {toast.show && (
+        <Toast 
+          message={toast.message} 
+          type={toast.type} 
+          onClose={hideToast} 
+        />
+      )}
     </div>
   );
 }

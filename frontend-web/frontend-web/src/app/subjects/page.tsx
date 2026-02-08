@@ -5,7 +5,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { hasPermission, PERMISSIONS, isAdmin } from "@/utils/permissions";
-import { getMaterias } from "@/services/materias.service";
+import { getMaterias, getEstudiantesPorGrupo } from "@/services/materias.service";
+import { getDocentes, asignarDocente, moverEstudiante, getGruposDisponibles } from "@/services/admin.service";
 
 interface Materia {
   idgrupo: number;
@@ -19,12 +20,49 @@ interface Materia {
   ciclo: string;
 }
 
+interface Docente {
+  iddocente: number;
+  nombre: string;
+  especialidad: string;
+  grupos_asignados: number;
+}
+
+interface Estudiante {
+  idestudiante: number;
+  carnet: string;
+  nombre: string;
+  idinscripcion: number;
+}
+
+interface GrupoDisponible {
+  idgrupo: number;
+  cupomaximo: number;
+  inscritos: number;
+  ciclo: string;
+  docente: string;
+}
+
 export default function SubjectsPage() {
   const { user } = useAuth();
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMateria, setSelectedMateria] = useState<Materia | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [showDocenteModal, setShowDocenteModal] = useState(false);
+  const [showMoverModal, setShowMoverModal] = useState(false);
+  const [docentes, setDocentes] = useState<Docente[]>([]);
+  const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
+  const [gruposDisponibles, setGruposDisponibles] = useState<GrupoDisponible[]>([]);
+  const [selectedDocente, setSelectedDocente] = useState("");
+  const [selectedEstudiante, setSelectedEstudiante] = useState<Estudiante | null>(null);
+  const [selectedGrupoDestino, setSelectedGrupoDestino] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredMaterias = materias.filter(m => 
+    m.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.codigomateria.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    m.docente.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     async function loadMaterias() {
@@ -38,6 +76,57 @@ export default function SubjectsPage() {
     }
     loadMaterias();
   }, [user]);
+
+  async function handleAsignarDocente() {
+    if (!selectedMateria || !selectedDocente) return;
+    const response = await asignarDocente(selectedMateria.idgrupo, parseInt(selectedDocente));
+    if (response.success) {
+      alert('✅ Docente asignado correctamente');
+      setShowDocenteModal(false);
+      if (user?.idUsuario) {
+        const res = await getMaterias(user.idUsuario, user.rol);
+        if (res.success) setMaterias(res.materias);
+      }
+    } else {
+      alert('❌ Error al asignar docente');
+    }
+  }
+
+  async function handleMoverEstudiante() {
+    if (!selectedEstudiante || !selectedGrupoDestino) return;
+    const response = await moverEstudiante(selectedEstudiante.idinscripcion, parseInt(selectedGrupoDestino));
+    if (response.success) {
+      alert('✅ Estudiante movido correctamente');
+      setShowMoverModal(false);
+      setSelectedEstudiante(null);
+    } else {
+      alert('❌ ' + response.message);
+    }
+  }
+
+  async function openDocenteModal(materia: Materia) {
+    setSelectedMateria(materia);
+    const response = await getDocentes();
+    if (response.success) {
+      setDocentes(response.docentes);
+    }
+    setShowDocenteModal(true);
+  }
+
+  async function openMoverModal(materia: Materia) {
+    setSelectedMateria(materia);
+    const [estudiantesRes, gruposRes] = await Promise.all([
+      getEstudiantesPorGrupo(materia.idgrupo),
+      getGruposDisponibles(materia.idmateria)
+    ]);
+    if (estudiantesRes.success) {
+      setEstudiantes(estudiantesRes.estudiantes);
+    }
+    if (gruposRes.success) {
+      setGruposDisponibles(gruposRes.grupos);
+    }
+    setShowMoverModal(true);
+  }
 
   if (!hasPermission(user?.rol, PERMISSIONS.MANAGE_SUBJECTS)) {
     return (
@@ -109,14 +198,13 @@ export default function SubjectsPage() {
             )}
           </div>
           <div className="flex space-x-2">
-            {isAdmin(user?.rol) && (
-              <select className="input-ieproes max-w-xs">
-                <option>Todos los semestres</option>
-                <option>Semestre I</option>
-                <option>Semestre II</option>
-              </select>
-            )}
-            <input type="search" placeholder="Buscar materias..." className="input-ieproes max-w-xs" />
+            <input 
+              type="search" 
+              placeholder="Buscar materias..." 
+              className="input-ieproes max-w-xs"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
 
@@ -124,10 +212,12 @@ export default function SubjectsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {loading ? (
             <div className="col-span-full text-center py-8 text-gray-500">Cargando materias...</div>
-          ) : materias.length === 0 ? (
-            <div className="col-span-full text-center py-8 text-gray-500">No hay materias asignadas</div>
+          ) : filteredMaterias.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-gray-500">
+              {searchTerm ? 'No se encontraron materias' : 'No hay materias asignadas'}
+            </div>
           ) : (
-            materias.map((materia) => (
+            filteredMaterias.map((materia) => (
               <div key={materia.idgrupo} className="card-ieproes hover:shadow-xl transition-shadow">
                 <div className="flex justify-between items-start mb-4">
                   <div className="w-12 h-12 bg-ieproes-primary rounded-lg flex items-center justify-center">
@@ -165,9 +255,22 @@ export default function SubjectsPage() {
                     Ver Detalles
                   </button>
                   {isAdmin(user?.rol) && (
-                    <Link href={`/grades?grupo=${materia.idgrupo}`}>
-                      <button className="btn-secondary text-sm">Notas</button>
-                    </Link>
+                    <>
+                      <button 
+                        onClick={() => openDocenteModal(materia)}
+                        className="btn-secondary text-sm px-2"
+                        title="Asignar docente"
+                      >
+                        👨🏫
+                      </button>
+                      <button 
+                        onClick={() => openMoverModal(materia)}
+                        className="btn-secondary text-sm px-2"
+                        title="Mover estudiantes"
+                      >
+                        🔄
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -215,8 +318,94 @@ export default function SubjectsPage() {
                   <button className="btn-ieproes w-full">📝 Gestionar Notas</button>
                 </Link>
                 {isAdmin(user?.rol) && (
-                  <button className="btn-secondary">👥 Ver Estudiantes</button>
+                  <>
+                    <button onClick={() => { setShowModal(false); openDocenteModal(selectedMateria); }} className="btn-secondary">👨🏫 Asignar Docente</button>
+                    <button onClick={() => { setShowModal(false); openMoverModal(selectedMateria); }} className="btn-secondary">🔄 Mover Estudiantes</button>
+                  </>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal asignar docente */}
+        {showDocenteModal && selectedMateria && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowDocenteModal(false)}>
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4" onClick={(e) => e.stopPropagation()}>
+              <h2 className="text-xl font-bold mb-4">👨🏫 Asignar Docente</h2>
+              <p className="text-sm text-gray-600 mb-4">Materia: {selectedMateria.nombre}</p>
+              
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">Seleccionar Docente</label>
+                <select 
+                  className="input-ieproes"
+                  value={selectedDocente}
+                  onChange={(e) => setSelectedDocente(e.target.value)}
+                >
+                  <option value="">Seleccionar...</option>
+                  {docentes.map(d => (
+                    <option key={d.iddocente} value={d.iddocente}>
+                      {d.nombre} - {d.especialidad} ({d.grupos_asignados} grupos)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex space-x-3">
+                <button onClick={handleAsignarDocente} disabled={!selectedDocente} className="btn-ieproes flex-1">Asignar</button>
+                <button onClick={() => setShowDocenteModal(false)} className="btn-secondary flex-1">Cancelar</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal mover estudiantes */}
+        {showMoverModal && selectedMateria && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowMoverModal(false)}>
+            <div className="bg-white rounded-lg p-6 max-w-2xl w-full mx-4" onClick={(e) => e.stopPropagation()}>
+              <h2 className="text-xl font-bold mb-4">🔄 Mover Estudiante de Grupo</h2>
+              <p className="text-sm text-gray-600 mb-4">Materia: {selectedMateria.nombre}</p>
+              
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Estudiante</label>
+                  <select 
+                    className="input-ieproes"
+                    value={selectedEstudiante?.idestudiante || ""}
+                    onChange={(e) => {
+                      const est = estudiantes.find(s => s.idestudiante === parseInt(e.target.value));
+                      setSelectedEstudiante(est || null);
+                    }}
+                  >
+                    <option value="">Seleccionar...</option>
+                    {estudiantes.map(e => (
+                      <option key={e.idestudiante} value={e.idestudiante}>
+                        {e.carnet} - {e.nombre}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Grupo Destino</label>
+                  <select 
+                    className="input-ieproes"
+                    value={selectedGrupoDestino}
+                    onChange={(e) => setSelectedGrupoDestino(e.target.value)}
+                  >
+                    <option value="">Seleccionar...</option>
+                    {gruposDisponibles.map(g => (
+                      <option key={g.idgrupo} value={g.idgrupo}>
+                        {g.ciclo} - {g.docente} ({g.inscritos}/{g.cupomaximo})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex space-x-3">
+                <button onClick={handleMoverEstudiante} disabled={!selectedEstudiante || !selectedGrupoDestino} className="btn-ieproes flex-1">Mover</button>
+                <button onClick={() => setShowMoverModal(false)} className="btn-secondary flex-1">Cancelar</button>
               </div>
             </div>
           </div>

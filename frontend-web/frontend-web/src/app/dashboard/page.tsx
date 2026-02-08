@@ -3,7 +3,7 @@
 import ClientOnly from "@/components/ClientOnly";
 import { useAuth } from "@/hooks/useAuth";
 import { logout } from "@/services/auth.service";
-import { getDashboardStats } from "@/services/dashboard.service";
+import { getDashboardStats, getDashboardActividad } from "@/services/dashboard.service";
 import { hasPermission, PERMISSIONS } from "@/utils/permissions";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -13,6 +13,13 @@ interface Stats {
   catedraticos: number;
   materias: number;
   notas: number;
+}
+
+interface Actividad {
+  tipo: string;
+  mensaje: string;
+  detalle?: string;
+  icono: string;
 }
 
 export default function DashboardPage() {
@@ -25,20 +32,28 @@ export default function DashboardPage() {
     notas: 0,
   });
 
+  const [actividades, setActividades] = useState<Actividad[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadStats() {
+    async function loadData() {
       setLoading(true);
-      const response = await getDashboardStats();
-      if (response.success) {
-        setStats(response.stats);
+      const [statsRes, actividadRes] = await Promise.all([
+        getDashboardStats(),
+        getDashboardActividad()
+      ]);
+      
+      if (statsRes.success) {
+        setStats(statsRes.stats);
+      }
+      if (actividadRes.success) {
+        setActividades(actividadRes.actividades);
       }
       setLoading(false);
     }
 
     if (isAuth) {
-      loadStats();
+      loadData();
     }
   }, [isAuth]);
 
@@ -119,35 +134,95 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* acciones */}
-          <div className="card-ieproes">
-            <h3 className="text-lg font-semibold mb-4">Acciones Rápidas</h3>
+          {/* acciones y actividad */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* acciones rapidas */}
+            <div className="card-ieproes">
+              <h3 className="text-lg font-semibold mb-4">Acciones Rápidas</h3>
 
-            <div className="space-y-3">
-              {hasPermission(user?.rol, PERMISSIONS.MANAGE_USERS) && (
-                <Link href="/users">
-                  <button className="w-full text-left p-3 rounded-lg border">
-                    👥 Gestionar Usuarios
-                  </button>
-                </Link>
-              )}
+              <div className="space-y-3">
+                {hasPermission(user?.rol, PERMISSIONS.MANAGE_USERS) && (
+                  <Link href="/users">
+                    <button className="w-full text-left p-3 rounded-lg border border-ieproes-light hover:bg-ieproes-accent transition-colors">
+                      <span className="font-medium">👥 Gestionar Usuarios</span>
+                    </button>
+                  </Link>
+                )}
 
-              {hasPermission(user?.rol, PERMISSIONS.MANAGE_SUBJECTS) && (
-                <Link href="/subjects">
-                  <button className="w-full text-left p-3 rounded-lg border">
-                    📚 Administrar Materias
-                  </button>
-                </Link>
-              )}
+                {hasPermission(user?.rol, PERMISSIONS.MANAGE_SUBJECTS) && (
+                  <Link href="/subjects">
+                    <button className="w-full text-left p-3 rounded-lg border border-ieproes-light hover:bg-ieproes-accent transition-colors">
+                      <span className="font-medium">📚 Administrar Materias</span>
+                    </button>
+                  </Link>
+                )}
 
-              {hasPermission(user?.rol, PERMISSIONS.MANAGE_GRADES) && (
-                <Link href="/grades">
-                  <button className="w-full text-left p-3 rounded-lg border">
-                    📝 Gestionar Notas
-                  </button>
-                </Link>
+                {hasPermission(user?.rol, PERMISSIONS.MANAGE_GRADES) && (
+                  <Link href="/grades">
+                    <button className="w-full text-left p-3 rounded-lg border border-ieproes-light hover:bg-ieproes-accent transition-colors">
+                      <span className="font-medium">📝 Gestionar Notas</span>
+                    </button>
+                  </Link>
+                )}
+
+                {hasPermission(user?.rol, PERMISSIONS.VIEW_REPORTS) && (
+                  <Link href="/reports">
+                    <button className="w-full text-left p-3 rounded-lg border border-ieproes-light hover:bg-ieproes-accent transition-colors">
+                      <span className="font-medium">📊 Ver Reportes</span>
+                    </button>
+                  </Link>
+                )}
+
+                {hasPermission(user?.rol, PERMISSIONS.SYSTEM_CONFIG) && (
+                  <Link href="/config">
+                    <button className="w-full text-left p-3 rounded-lg border border-ieproes-light hover:bg-ieproes-accent transition-colors">
+                      <span className="font-medium">⚙️ Configuración</span>
+                    </button>
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            {/* actividad reciente */}
+            <div className="card-ieproes">
+              <h3 className="text-lg font-semibold mb-4">Actividad Reciente</h3>
+              
+              {loading ? (
+                <div className="text-center py-8 text-gray-500">Cargando actividad...</div>
+              ) : actividades.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">No hay actividad reciente</div>
+              ) : (
+                <div className="space-y-3">
+                  {actividades.map((act, index) => (
+                    <div 
+                      key={index} 
+                      className={`flex items-start p-3 rounded-lg border-l-4 ${
+                        act.icono === 'info' ? 'bg-blue-50 border-info' :
+                        act.icono === 'success' ? 'bg-green-50 border-success' :
+                        'bg-yellow-50 border-warning'
+                      }`}
+                    >
+                      <div className={`w-3 h-3 rounded-full mr-3 mt-1 ${
+                        act.icono === 'info' ? 'bg-info' :
+                        act.icono === 'success' ? 'bg-success' :
+                        'bg-warning'
+                      }`}></div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{act.mensaje}</p>
+                        {act.detalle && (
+                          <p className="text-xs text-gray-600 mt-1">{act.detalle}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
+          </div>
+
+          {/* footer */}
+          <div className="mt-8 text-center text-sm text-gray-500">
+            <p>Sistema de Gestión Académica IEPROES - v1.0</p>
           </div>
         </main>
       </div>

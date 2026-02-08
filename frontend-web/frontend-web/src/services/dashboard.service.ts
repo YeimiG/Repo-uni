@@ -19,3 +19,16 @@ export async function getDashboardStats() {
     };
   }
 }
+
+export async function getDashboardActividad() {
+  try {
+    const { data } = await axios.get(`${API_URL}/api/dashboard/actividad`);
+    return data;
+  } catch (error) {
+    console.error("Error obteniendo actividad:", error);
+    return {
+      success: false,
+      actividades: [],
+    };
+  }
+}
