@@ -4,30 +4,22 @@ exports.getStats = async (req, res) => {
   try {
     // Contar estudiantes
     const estudiantes = await db.query(`
-      SELECT COUNT(*) as total 
-      FROM seguridad.usuario u
-      INNER JOIN seguridad.rol r ON u.idrol = r.idrol
-      WHERE r.nombrerol IN ('Estudiante', 'ESTUDIANTE')
+      SELECT COUNT(*) as total FROM academico.estudiante
     `);
 
-    // Contar catedráticos
+    // Contar catedráticos/docentes
     const catedraticos = await db.query(`
-      SELECT COUNT(*) as total 
-      FROM seguridad.usuario u
-      INNER JOIN seguridad.rol r ON u.idrol = r.idrol
-      WHERE r.nombrerol = 'Catedrático'
+      SELECT COUNT(*) as total FROM academico.docente
     `);
 
-    // Contar materias (asumiendo que existe tabla materia)
+    // Contar materias
     const materias = await db.query(`
-      SELECT COUNT(*) as total 
-      FROM academico.materia
+      SELECT COUNT(*) as total FROM academico.materia
     `);
 
-    // Contar notas (asumiendo que existe tabla nota)
+    // Contar notas
     const notas = await db.query(`
-      SELECT COUNT(*) as total 
-      FROM academico.nota
+      SELECT COUNT(*) as total FROM registro.notas
     `);
 
     res.json({

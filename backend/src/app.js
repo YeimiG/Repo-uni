@@ -15,6 +15,7 @@ const authRoutes = require("./routes/authRoutes");
 const catedraticoRoutes = require("./routes/catedraticoRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const materiasRoutes = require("./routes/materiasRoutes");
 
 // Use Routes
 app.use("/api/estudiantes", estudianteRoutes);
@@ -23,5 +24,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api/catedratico", catedraticoRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/grupos", materiasRoutes);
 
 module.exports = app;
