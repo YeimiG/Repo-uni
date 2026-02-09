@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ActivityIndicator, Alert, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../constants/Colors';
-import { login } from '../services/login';
+// CAMBIO: Ahora importamos TU servicio específico para la App
+import { loginEstudiante } from '../services/authApp';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -9,27 +10,35 @@ const LoginScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
-  setLoading(true);
-  try {
-    const data = await login(email, password);
-    
-    // Extraemos el idestudiante (que ahora vale 1 para tu prueba)
-    const idEstudiante = data.usuario.idestudiante;
-
-    if (idEstudiante) {
-      navigation.navigate('MainTabs', { 
-        screen: 'Principal', 
-        params: { idEstudiante: idEstudiante } 
-      });
-    } else {
-      Alert.alert("Error", "Este usuario no tiene un perfil de estudiante asignado");
+    // Validación básica antes de llamar al servidor
+    if (!email || !password) {
+      Alert.alert("Error", "Por favor completa todos los campos");
+      return;
     }
-  } catch (error) {
-    Alert.alert("Error", error);
-  } finally {
-    setLoading(false);
-  }
-};
+
+    setLoading(true);
+    try {
+      // Llamamos a tu nuevo servicio independiente
+      const data = await loginEstudiante(email, password);
+      
+      if (data.success) {
+        // Obtenemos el idUsuario del objeto usuario que devuelve tu controlador
+        const idUsuario = data.usuario.idUsuario;
+
+        // Navegamos pasando el idUsuario para que la pantalla de Perfil 
+        // pueda buscar los datos en academico.Estudiante
+        navigation.navigate('MainTabs', { 
+          screen: 'Principal', 
+          params: { idUsuario: idUsuario } 
+        });
+      }
+    } catch (error) {
+      // Si el backend devuelve un error (como "Credenciales incorrectas")
+      Alert.alert("Error de Inicio de Sesión", error.message || "No se pudo conectar con el servidor");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -47,6 +56,7 @@ const LoginScreen = ({ navigation }) => {
             style={styles.input} 
             placeholder="ejemplo@ieproes.edu.sv" 
             autoCapitalize="none"
+            keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
           />
@@ -57,22 +67,30 @@ const LoginScreen = ({ navigation }) => {
           <TextInput 
             style={styles.input} 
             secureTextEntry 
+            placeholder="********"
             value={password}
             onChangeText={setPassword}
           />
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-          {loading ? <ActivityIndicator color="white" /> : <Text style={styles.buttonText}>Entrar</Text>}
+        <TouchableOpacity 
+          style={[styles.button, loading && { opacity: 0.7 }]} 
+          onPress={handleLogin} 
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.buttonText}>Entrar</Text>
+          )}
         </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
 };
 
-// ... (tus estilos se mantienen iguales)
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.primaryBlue, alignItems: 'center' },
+  container: { flex: 1, backgroundColor: Colors.primaryBlue || '#0047AB', alignItems: 'center' },
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 80, marginBottom: 40 },
   circle: { width: 50, height: 50, borderRadius: 25, backgroundColor: 'white', marginRight: 15 },
   brandText: { fontSize: 35, fontWeight: 'bold', color: 'black' },
@@ -80,8 +98,8 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 25 },
   inputGroup: { width: '100%', marginBottom: 15 },
   label: { fontSize: 12, fontWeight: 'bold', marginBottom: 5 },
-  input: { backgroundColor: Colors.lightBlue, borderRadius: 12, height: 45, paddingHorizontal: 15 },
-  button: { backgroundColor: Colors.primaryBlue, paddingVertical: 12, paddingHorizontal: 40, borderRadius: 15, marginTop: 20 },
+  input: { backgroundColor: Colors.lightBlue || '#E3F2FD', borderRadius: 12, height: 45, paddingHorizontal: 15 },
+  button: { backgroundColor: Colors.primaryBlue || '#0047AB', paddingVertical: 12, paddingHorizontal: 40, borderRadius: 15, marginTop: 20 },
   buttonText: { fontWeight: 'bold', fontSize: 16, color: 'white' }
 });
 

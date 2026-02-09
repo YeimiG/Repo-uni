@@ -17,8 +17,12 @@ const adminRoutes = require("./routes/adminRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const materiasRoutes = require("./routes/materiasRoutes");
 const reportesRoutes = require("./routes/reportesRoutes");
+const appMobileRoutes = require("./routes/appMobileRoutes");
 
-// Use Routes
+// Ruta para la app móvil
+app.use("/api/app", appMobileRoutes);
+
+// Use Routes web
 app.use("/api/estudiantes", estudianteRoutes);
 app.use("/api/materias", materiaRoutes);
 app.use("/api/auth", authRoutes);
