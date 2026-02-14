@@ -4,12 +4,10 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { Colors } from '../constants/Colors';
 import LoginScreen from '../screens/LoginScreen';
-import NotasScreen from '../screens/NotasScreen';
-import PerfilScreen from '../screens/PerfilScreen';
 import ServiciosScreen from '../screens/ServiciosScreen';
 
 const Stack = createStackNavigator();
-const Tab = createBottomTabNavigator();     
+const Tab = createBottomTabNavigator();
 
 function MainTabs() {
   return (
@@ -20,10 +18,9 @@ function MainTabs() {
     }}>
       <Tab.Screen name="Principal" component={ServiciosScreen} 
         options={{ tabBarIcon: ({color}) => <Ionicons name="home" size={28} color={color} /> }} />
-      <Tab.Screen name="Notas" component={NotasScreen} 
+      <Tab.Screen name="Notas" component={ServiciosScreen} 
         options={{ tabBarIcon: ({color}) => <Ionicons name="document-text" size={28} color={color} /> }} />
-        <Tab.Screen name="settings" component={ServiciosScreen} 
-        options={{ tabBarIcon: ({color}) => <Ionicons name="settings" size={28} color={color} /> }} />
+   
     </Tab.Navigator>
   );
 }
@@ -34,7 +31,6 @@ export default function AppNavigator() {
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="MainTabs" component={MainTabs} />
       <Stack.Screen name="Servicios" component={ServiciosScreen} />
-      <Stack.Screen name="Perfil" component={PerfilScreen} />
     </Stack.Navigator>
   );
 }
