@@ -1,18 +1,27 @@
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '../constants/Colors';
 
-const ServiciosScreen = () => {
+const ServiciosScreen = ({ navigation, route }) => {
+
+  const idUsuario = route?.params?.idUsuario;
+
+  console.log("ID recibido en Servicios:", idUsuario);
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Servicios</Text>
       </View>
+
       <View style={styles.content}>
-        <TouchableOpacity style={styles.serviceCard}>
-          <Text style={styles.cardHeader}>Perfil</Text>
-          <Text style={styles.cardSub}>Ver el perfil</Text>
+        <TouchableOpacity 
+          style={styles.serviceCard}
+          onPress={() => navigation.navigate('Perfil', { idUsuario })}
+        >
+          <Text style={styles.cardHeader}>Ver mi Perfil</Text>
         </TouchableOpacity>
       </View>
+
     </View>
   );
 };

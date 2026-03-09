@@ -1,4 +1,4 @@
-import API from './api-movil';
+import API from './api';
 
 export const loginEstudiante = async (correo, clave) => {
   try {

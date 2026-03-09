@@ -2,18 +2,22 @@ const db = require("../../config/db");
 
 exports.obtenerPerfilEstudiante = async (req, res) => {
     const { idUsuario } = req.params;
-
     try {
-        const result = await db.query(
-            `SELECT e.nombre, e.apellidos, e.expediente, c.nombreCarrera
-             FROM academico.estudiante e
-             INNER JOIN academico.carrera c ON e.idcarrera = c.idcarrera
-             WHERE e.idusuario = $1`,
-            [idUsuario]
-        );
+        const query = `
+            SELECT 
+                e.nombre, 
+                e.apellidos, 
+                e.expediente, 
+                e."estadoAcademico" AS "estadoAcademico", 
+                c."nombreCarrera" AS "nombreCarrera"
+            FROM academico."Estudiante" e
+            INNER JOIN academico."Carrera" c ON e."idCarrera" = c."idCarrera"
+            WHERE e."idUsuario" = $1
+        `;
+        const result = await db.query(query, [idUsuario]);
 
         if (result.rows.length === 0) {
-            return res.status(404).json({ success: false, message: "Datos de estudiante no encontrados" });
+            return res.status(404).json({ success: false, message: "Perfil no encontrado" });
         }
 
         res.json({
@@ -21,6 +25,6 @@ exports.obtenerPerfilEstudiante = async (req, res) => {
             perfil: result.rows[0]
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: "Error al obtener perfil" });
+        res.status(500).json({ success: false, error: error.message });
     }
 };
