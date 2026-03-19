@@ -15,4 +15,10 @@ router.get("/permisos-edicion", adminController.getPermisosEdicion);
 router.post("/permisos-edicion", adminController.habilitarPermiso);
 router.put("/permisos-edicion/:idPermiso/resetear", adminController.resetearEdicion);
 
+// Rutas de secretaría
+router.get("/roles", adminController.getRoles);
+router.post("/usuarios", adminController.crearUsuario);
+router.put("/usuarios/:idusuario", adminController.editarUsuario);
+router.patch("/usuarios/:idusuario/toggle", adminController.toggleUsuario);
+
 module.exports = router;

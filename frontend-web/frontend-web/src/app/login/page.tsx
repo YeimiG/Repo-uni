@@ -138,16 +138,18 @@ export default function LoginPage() {
 
         {/* roles disponibles */}
         <div className="mt-8 pt-6 border-t border-gray-200">
-          <div className="text-center text-sm text-gray-600">
-            <p className="font-medium mb-3">Acceso permitido:</p>
-            <div className="grid grid-cols-1 gap-2">
-              <span className="badge-success">
-                ✓ Catedrático - Gestionar materias
-              </span>
-              <span className="badge-warning">
-                ✓ Administrador - Control total
-              </span>
-            </div>
+          <p className="text-center text-xs text-gray-500 font-medium mb-3">Acceso permitido para:</p>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {[
+              { rol: "SUPER_ADMIN",      color: "bg-purple-100 text-purple-700" },
+              { rol: "ADMIN_ACADÉMICO",  color: "bg-blue-100 text-blue-700" },
+              { rol: "ADMIN_FINANCIERO", color: "bg-green-100 text-green-700" },
+              { rol: "COORDINADOR",      color: "bg-yellow-100 text-yellow-700" },
+              { rol: "DOCENTE",          color: "bg-indigo-100 text-indigo-700" },
+              { rol: "SECRETARÍA",       color: "bg-pink-100 text-pink-700" },
+            ].map(r => (
+              <span key={r.rol} className={`${r.color} px-2 py-1 rounded text-center font-medium`}>{r.rol}</span>
+            ))}
           </div>
         </div>
       </div>

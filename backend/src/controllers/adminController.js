@@ -52,7 +52,7 @@ exports.getDocentes = async (req, res) => {
       INNER JOIN seguridad.usuario u ON d.idusuario = u.idusuario
       LEFT JOIN grupos.grupo g ON d.iddocente = g.iddocente
       GROUP BY d.iddocente, p.primernombre, p.primerapellido, d.especialidad, u.correo
-      ORDER BY d.nombres
+      ORDER BY p.primernombre
     `;
 
     const result = await db.query(query);
@@ -282,5 +282,125 @@ exports.resetearEdicion = async (req, res) => {
     res.json({ success: true, permiso: result.rows[0] });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+// ============================================
+// FUNCIONES DE SECRETARIA
+// ============================================
+
+// Obtener roles disponibles (excluye ESTUDIANTE y TUTOR)
+exports.getRoles = async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT idrol, nombrerol FROM seguridad.rol
+       WHERE nombrerol NOT IN ('ESTUDIANTE','TUTOR')
+       ORDER BY niveljerarquico`
+    );
+    res.json({ success: true, roles: result.rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error al obtener roles" });
+  }
+};
+
+// Crear usuario
+exports.crearUsuario = async (req, res) => {
+  const { correo, clave, idrol, primernombre, primerapellido } = req.body;
+  try {
+    const existe = await db.query(
+      `SELECT idusuario FROM seguridad.usuario WHERE correo = $1`, [correo]
+    );
+    if (existe.rows.length > 0) {
+      return res.status(400).json({ success: false, message: "El correo ya está registrado" });
+    }
+
+    // Crear persona
+    const persona = await db.query(
+      `INSERT INTO personas.persona (primernombre, primerapellido, activo, fecharegistro)
+       VALUES ($1, $2, true, NOW()) RETURNING idpersona`,
+      [primernombre, primerapellido]
+    );
+    const idpersona = persona.rows[0].idpersona;
+
+    // Crear usuario
+    const usuario = await db.query(
+      `INSERT INTO seguridad.usuario (correo, clave, idrol, activo, fechacreacion)
+       VALUES ($1, $2, $3, true, NOW()) RETURNING idusuario`,
+      [correo, clave, idrol]
+    );
+    const idusuario = usuario.rows[0].idusuario;
+
+    // Si es DOCENTE, crear registro en docentes.docente
+    const rol = await db.query(`SELECT nombrerol FROM seguridad.rol WHERE idrol = $1`, [idrol]);
+    if (rol.rows[0]?.nombrerol === 'DOCENTE') {
+      await db.query(
+        `INSERT INTO docentes.docente (idpersona, idusuario, codigodocente, fechaingreso, activo)
+         VALUES ($1, $2, $3, NOW(), true)`,
+        [idpersona, idusuario, `DOC-${idusuario}`]
+      );
+    }
+
+    res.json({ success: true, message: "Usuario creado correctamente", idusuario });
+  } catch (error) {
+    console.error("ERROR CREAR USUARIO:", error);
+    res.status(500).json({ success: false, message: "Error al crear usuario" });
+  }
+};
+
+// Editar usuario
+exports.editarUsuario = async (req, res) => {
+  const { idusuario } = req.params;
+  const { correo, clave, primernombre, primerapellido } = req.body;
+  try {
+    if (correo || clave) {
+      const sets = [];
+      const vals = [];
+      let idx = 1;
+      if (correo) { sets.push(`correo = $${idx++}`); vals.push(correo); }
+      if (clave)  { sets.push(`clave = $${idx++}`);  vals.push(clave); }
+      vals.push(idusuario);
+      await db.query(
+        `UPDATE seguridad.usuario SET ${sets.join(', ')} WHERE idusuario = $${idx}`, vals
+      );
+    }
+
+    if (primernombre || primerapellido) {
+      const sets = [];
+      const vals = [];
+      let idx = 1;
+      if (primernombre)   { sets.push(`primernombre = $${idx++}`);   vals.push(primernombre); }
+      if (primerapellido) { sets.push(`primerapellido = $${idx++}`); vals.push(primerapellido); }
+      vals.push(idusuario);
+      await db.query(
+        `UPDATE personas.persona SET ${sets.join(', ')}
+         WHERE idpersona IN (
+           SELECT idpersona FROM docentes.docente WHERE idusuario = $${idx}
+           UNION
+           SELECT idpersona FROM estudiantes.estudiante WHERE idusuario = $${idx}
+         )`,
+        vals
+      );
+    }
+
+    res.json({ success: true, message: "Usuario actualizado correctamente" });
+  } catch (error) {
+    console.error("ERROR EDITAR USUARIO:", error);
+    res.status(500).json({ success: false, message: "Error al editar usuario" });
+  }
+};
+
+// Activar / desactivar usuario
+exports.toggleUsuario = async (req, res) => {
+  const { idusuario } = req.params;
+  try {
+    const result = await db.query(
+      `UPDATE seguridad.usuario SET activo = NOT activo WHERE idusuario = $1 RETURNING activo`,
+      [idusuario]
+    );
+    const activo = result.rows[0].activo;
+    res.json({ success: true, message: activo ? "Usuario activado" : "Usuario desactivado", activo });
+  } catch (error) {
+    console.error("ERROR TOGGLE USUARIO:", error);
+    res.status(500).json({ success: false, message: "Error al cambiar estado del usuario" });
   }
 };
