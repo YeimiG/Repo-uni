@@ -5,14 +5,16 @@ exports.obtenerPerfilEstudiante = async (req, res) => {
     try {
         const query = `
             SELECT 
-                e.nombre, 
-                e.apellidos, 
-                e.expediente, 
-                e."estadoAcademico" AS "estadoAcademico", 
-                c."nombreCarrera" AS "nombreCarrera"
-            FROM academico."Estudiante" e
-            INNER JOIN academico."Carrera" c ON e."idCarrera" = c."idCarrera"
-            WHERE e."idUsuario" = $1
+                p.primernombre AS nombre,
+                p.primerapellido AS apellidos,
+                e.expediente,
+                ee.nombre AS "estadoAcademico",
+                c.nombre AS "nombreCarrera"
+            FROM estudiantes.estudiante e
+            INNER JOIN personas.persona p ON e.idpersona = p.idpersona
+            INNER JOIN academico.carrera c ON e.idcarrera = c.idcarrera
+            INNER JOIN estudiantes.estadoestudiante ee ON e.idestado = ee.idestado
+            WHERE e.idusuario = $1
         `;
         const result = await db.query(query, [idUsuario]);
 

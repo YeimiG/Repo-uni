@@ -145,8 +145,9 @@ export default function UsersPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`badge-${
-                          usuario.rol.includes('Estudiante') ? 'info' : 
-                          usuario.rol === 'Catedrático' ? 'success' : 'warning'
+                          usuario.rol === 'ESTUDIANTE' ? 'info' : 
+                          usuario.rol === 'DOCENTE' ? 'success' :
+                          usuario.rol === 'SUPER_ADMIN' || usuario.rol === 'ADMIN_ACADEMICO' ? 'warning' : 'info'
                         }`}>
                           {usuario.rol}
                         </span>

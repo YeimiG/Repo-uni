@@ -3,7 +3,7 @@ const db = require("../config/db");
 // Función para obtener todos (ya la tenías)
 exports.getEstudiantes = async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM academico.Estudiante");
+    const result = await db.query("SELECT e.*, p.primernombre, p.primerapellido FROM estudiantes.estudiante e INNER JOIN personas.persona p ON e.idpersona = p.idpersona");
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -14,7 +14,7 @@ exports.getEstudiantes = async (req, res) => {
 exports.getEstudianteById = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await db.query("SELECT * FROM academico.Estudiante WHERE idEstudiante = $1", [id]);
+    const result = await db.query("SELECT e.*, p.primernombre, p.primerapellido FROM estudiantes.estudiante e INNER JOIN personas.persona p ON e.idpersona = p.idpersona WHERE e.idestudiante = $1", [id]);
     res.json(result.rows[0]);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -26,11 +26,14 @@ exports.getPerfilEstudiante = async (req, res) => {
   const { id } = req.params;
   try {
     const query = `
-      SELECT e.expediente, e.nombre, e.apellidos, u.correo, e.estadoAcademico, c.nombreCarrera
-      FROM academico.Estudiante e
-      INNER JOIN seguridad.Usuario u ON e.idUsuario = u.idUsuario
-      INNER JOIN academico.Carrera c ON e.idCarrera = c.idCarrera
-      WHERE e.idEstudiante = $1
+      SELECT e.expediente, p.primernombre, p.primerapellido, u.correo,
+             ee.nombre as estadoAcademico, c.nombre as nombreCarrera
+      FROM estudiantes.estudiante e
+      INNER JOIN personas.persona p ON e.idpersona = p.idpersona
+      INNER JOIN seguridad.usuario u ON e.idusuario = u.idusuario
+      INNER JOIN academico.carrera c ON e.idcarrera = c.idcarrera
+      INNER JOIN estudiantes.estadoestudiante ee ON e.idestado = ee.idestado
+      WHERE e.idestudiante = $1
     `;
     const result = await db.query(query, [id]);
     

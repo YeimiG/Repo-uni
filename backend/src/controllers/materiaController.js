@@ -2,7 +2,7 @@ const db = require("../config/db");
 
 exports.getMaterias = async (req, res) => {
   try {
-    const result = await db.query("SELECT * FROM academico.Materia");
+    const result = await db.query("SELECT * FROM academico.materia");
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -13,7 +13,7 @@ exports.getMateriaById = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await db.query(
-      "SELECT * FROM academico.Materia WHERE Materia.idMateria = $1",
+      "SELECT * FROM academico.materia WHERE idmateria = $1",
       [id]
     );
     res.json(result.rows[0]);

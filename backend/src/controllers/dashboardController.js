@@ -4,12 +4,12 @@ exports.getStats = async (req, res) => {
   try {
     // Contar estudiantes
     const estudiantes = await db.query(`
-      SELECT COUNT(*) as total FROM academico.estudiante
+      SELECT COUNT(*) as total FROM estudiantes.estudiante
     `);
 
     // Contar catedráticos/docentes
     const catedraticos = await db.query(`
-      SELECT COUNT(*) as total FROM academico.docente
+      SELECT COUNT(*) as total FROM docentes.docente
     `);
 
     // Contar materias
@@ -19,7 +19,7 @@ exports.getStats = async (req, res) => {
 
     // Contar notas
     const notas = await db.query(`
-      SELECT COUNT(*) as total FROM registro.notas
+      SELECT COUNT(*) as total FROM evaluaciones.notafinal
     `);
 
     res.json({
@@ -53,11 +53,12 @@ exports.getActividad = async (req, res) => {
     const inscripciones = await db.query(`
       SELECT 
         i.fechainscripcion,
-        e.nombre || ' ' || e.apellidos as estudiante,
+        p.primernombre || ' ' || p.primerapellido as estudiante,
         m.nombre as materia
-      FROM registro.inscripcion i
-      INNER JOIN academico.estudiante e ON i.idestudiante = e.idestudiante
-      INNER JOIN academico.grupo g ON i.idgrupo = g.idgrupo
+      FROM inscripciones.inscripcion i
+      INNER JOIN estudiantes.estudiante e ON i.idestudiante = e.idestudiante
+      INNER JOIN personas.persona p ON e.idpersona = p.idpersona
+      INNER JOIN grupos.grupo g ON i.idgrupo = g.idgrupo
       INNER JOIN academico.materia m ON g.idmateria = m.idmateria
       ORDER BY i.fechainscripcion DESC
       LIMIT 3
@@ -76,15 +77,16 @@ exports.getActividad = async (req, res) => {
     const notasRecientes = await db.query(`
       SELECT 
         n.notafinal,
-        e.nombre || ' ' || e.apellidos as estudiante,
+        p.primernombre || ' ' || p.primerapellido as estudiante,
         m.nombre as materia
-      FROM registro.notas n
-      INNER JOIN registro.inscripcion i ON n.idinscripcion = i.idinscripcion
-      INNER JOIN academico.estudiante e ON i.idestudiante = e.idestudiante
-      INNER JOIN academico.grupo g ON i.idgrupo = g.idgrupo
+      FROM evaluaciones.notafinal n
+      INNER JOIN inscripciones.inscripcion i ON n.idinscripcion = i.idinscripcion
+      INNER JOIN estudiantes.estudiante e ON i.idestudiante = e.idestudiante
+      INNER JOIN personas.persona p ON e.idpersona = p.idpersona
+      INNER JOIN grupos.grupo g ON i.idgrupo = g.idgrupo
       INNER JOIN academico.materia m ON g.idmateria = m.idmateria
       WHERE n.notafinal IS NOT NULL
-      ORDER BY n.idnota DESC
+      ORDER BY n.idnotafinal DESC
       LIMIT 2
     `);
 

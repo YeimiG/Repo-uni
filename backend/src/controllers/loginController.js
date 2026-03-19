@@ -23,7 +23,7 @@ exports.login = async (req, res) => {
     const usuario = result.rows[0];
 
     // 🚫 Bloquear estudiantes
-    if (usuario.rol === "Estudiante" || usuario.rol === "ESTUDIANTE") {
+    if (usuario.rol === "ESTUDIANTE" || usuario.rol === "TUTOR") {
       return res.status(403).json({
         success: false,
         message: "Acceso no autorizado",

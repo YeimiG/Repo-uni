@@ -8,27 +8,28 @@ exports.getMaterias = async (req, res) => {
     let query;
     let params = [];
 
-    if (rol === "Administrador") {
+    if (rol === "SUPER_ADMIN" || rol === "ADMIN_ACADEMICO" || rol === "COORDINADOR") {
       // Admin ve todas las materias con sus grupos
       query = `
         SELECT 
           g.idgrupo,
           m.idmateria,
-          m.codigomateria,
+          m.codigo as codigomateria,
           m.nombre,
           m.unidadesvalorativas as creditos,
-          d.nombres || ' ' || d.apellidos as docente,
+          pd.primernombre || ' ' || pd.primerapellido as docente,
           g.cupomaximo,
           COUNT(i.idinscripcion) as inscritos,
-          c.año || '-' || c.periodo as ciclo
-        FROM academico.grupo g
+          p.nombre || '-' || p.numeroperiodo as ciclo
+        FROM grupos.grupo g
         INNER JOIN academico.materia m ON g.idmateria = m.idmateria
-        INNER JOIN academico.docente d ON g.iddocente = d.iddocente
-        INNER JOIN academico.cicloacademico c ON g.idciclo = c.idciclo
-        LEFT JOIN registro.inscripcion i ON g.idgrupo = i.idgrupo
-        GROUP BY g.idgrupo, m.idmateria, m.codigomateria, m.nombre, m.unidadesvalorativas, 
-                 d.nombres, d.apellidos, g.cupomaximo, c.año, c.periodo
-        ORDER BY m.codigomateria
+        INNER JOIN docentes.docente d ON g.iddocente = d.iddocente
+        INNER JOIN personas.persona pd ON d.idpersona = pd.idpersona
+        INNER JOIN academico.periodoacademico p ON g.idperiodo = p.idperiodo
+        LEFT JOIN inscripciones.inscripcion i ON g.idgrupo = i.idgrupo
+        GROUP BY g.idgrupo, m.idmateria, m.codigo, m.nombre, m.unidadesvalorativas,
+                 pd.primernombre, pd.primerapellido, g.cupomaximo, p.nombre, p.numeroperiodo
+        ORDER BY m.codigo
       `;
     } else {
       // Catedrático solo ve sus materias asignadas
@@ -36,22 +37,23 @@ exports.getMaterias = async (req, res) => {
         SELECT 
           g.idgrupo,
           m.idmateria,
-          m.codigomateria,
+          m.codigo as codigomateria,
           m.nombre,
           m.unidadesvalorativas as creditos,
-          d.nombres || ' ' || d.apellidos as docente,
+          pd.primernombre || ' ' || pd.primerapellido as docente,
           g.cupomaximo,
           COUNT(i.idinscripcion) as inscritos,
-          c.año || '-' || c.periodo as ciclo
-        FROM academico.grupo g
+          p.nombre || '-' || p.numeroperiodo as ciclo
+        FROM grupos.grupo g
         INNER JOIN academico.materia m ON g.idmateria = m.idmateria
-        INNER JOIN academico.docente d ON g.iddocente = d.iddocente
-        INNER JOIN academico.cicloacademico c ON g.idciclo = c.idciclo
-        LEFT JOIN registro.inscripcion i ON g.idgrupo = i.idgrupo
+        INNER JOIN docentes.docente d ON g.iddocente = d.iddocente
+        INNER JOIN personas.persona pd ON d.idpersona = pd.idpersona
+        INNER JOIN academico.periodoacademico p ON g.idperiodo = p.idperiodo
+        LEFT JOIN inscripciones.inscripcion i ON g.idgrupo = i.idgrupo
         WHERE d.idusuario = $1
-        GROUP BY g.idgrupo, m.idmateria, m.codigomateria, m.nombre, m.unidadesvalorativas, 
-                 d.nombres, d.apellidos, g.cupomaximo, c.año, c.periodo
-        ORDER BY m.codigomateria
+        GROUP BY g.idgrupo, m.idmateria, m.codigo, m.nombre, m.unidadesvalorativas,
+                 pd.primernombre, pd.primerapellido, g.cupomaximo, p.nombre, p.numeroperiodo
+        ORDER BY m.codigo
       `;
       params = [idUsuario];
     }
@@ -80,15 +82,16 @@ exports.getEstudiantesPorGrupo = async (req, res) => {
       SELECT 
         e.idestudiante,
         e.expediente as carnet,
-        e.nombre || ' ' || e.apellidos as nombre,
+        p.primernombre || ' ' || p.primerapellido as nombre,
         i.idinscripcion,
-        COALESCE(n.primero, 0) as parcial1,
-        COALESCE(n.segundo, 0) as parcial2,
-        COALESCE(n.tercero, 0) as examenfinal,
+        COALESCE(n.nota1, 0) as parcial1,
+        COALESCE(n.nota2, 0) as parcial2,
+        COALESCE(n.nota3, 0) as examenfinal,
         COALESCE(n.notafinal, 0) as notafinal
-      FROM registro.inscripcion i
-      INNER JOIN academico.estudiante e ON i.idestudiante = e.idestudiante
-      LEFT JOIN registro.notas n ON i.idinscripcion = n.idinscripcion
+      FROM inscripciones.inscripcion i
+      INNER JOIN estudiantes.estudiante e ON i.idestudiante = e.idestudiante
+      INNER JOIN personas.persona p ON e.idpersona = p.idpersona
+      LEFT JOIN evaluaciones.notafinal n ON i.idinscripcion = n.idinscripcion
       WHERE i.idgrupo = $1
       ORDER BY e.expediente
     `;
@@ -118,23 +121,21 @@ exports.guardarNotas = async (req, res) => {
 
     // Verificar si ya existe registro de notas
     const existe = await db.query(
-      "SELECT idnota FROM registro.notas WHERE idinscripcion = $1",
+      "SELECT idnotafinal FROM evaluaciones.notafinal WHERE idinscripcion = $1",
       [idinscripcion]
     );
 
     if (existe.rows.length > 0) {
-      // Actualizar
       await db.query(
-        `UPDATE registro.notas 
-         SET primero = $1, segundo = $2, tercero = $3, notafinal = $4
+        `UPDATE evaluaciones.notafinal 
+         SET nota1 = $1, nota2 = $2, nota3 = $3, notapromedio = $4, notafinal = $4
          WHERE idinscripcion = $5`,
         [primero, segundo, tercero, notafinal, idinscripcion]
       );
     } else {
-      // Insertar
       await db.query(
-        `INSERT INTO registro.notas (primero, segundo, tercero, notafinal, idinscripcion)
-         VALUES ($1, $2, $3, $4, $5)`,
+        `INSERT INTO evaluaciones.notafinal (nota1, nota2, nota3, notapromedio, notafinal, idinscripcion)
+         VALUES ($1, $2, $3, $4, $4, $5)`,
         [primero, segundo, tercero, notafinal, idinscripcion]
       );
     }

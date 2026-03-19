@@ -2,7 +2,7 @@
 export interface User {
   idUsuario: number;
   correo: string;
-  rol: "Administrador" | "Catedrático" | "Estudiante";
+  rol: 'SUPER_ADMIN' | 'ADMIN_ACADEMICO' | 'ADMIN_FINANCIERO' | 'COORDINADOR' | 'DOCENTE' | 'SECRETARIA' | 'ESTUDIANTE';
   nombre: string;
   apellidos: string;
   primerLogin?: boolean;

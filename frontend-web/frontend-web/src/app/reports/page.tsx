@@ -25,6 +25,17 @@ export default function ReportsPage() {
     setLoading(false);
   }
 
+  async function cargarEstadisticas() {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`${API_URL}/api/reportes/estadisticas`);
+      if (data.success) setEstadisticas(data.data);
+    } catch (error) {
+      console.error(error);
+    }
+    setLoading(false);
+  }
+
   async function descargarRendimiento(formato: 'csv' | 'txt') {
     if (rendimiento.length === 0) {
       alert('Primero genera el reporte');

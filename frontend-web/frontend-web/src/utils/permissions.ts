@@ -1,17 +1,25 @@
 // Control de acceso por roles
 export const ROLES = {
-  ADMIN: 'Administrador',
-  CATEDRATICO: 'Catedrático',
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  ADMIN_ACADEMICO: 'ADMIN_ACADEMICO',
+  ADMIN_FINANCIERO: 'ADMIN_FINANCIERO',
+  COORDINADOR: 'COORDINADOR',
+  DOCENTE: 'DOCENTE',
+  SECRETARIA: 'SECRETARIA',
+  ESTUDIANTE: 'ESTUDIANTE',
 };
 
+const ADMINS = ['SUPER_ADMIN', 'ADMIN_ACADEMICO', 'COORDINADOR'];
+const DOCENTES = ['DOCENTE'];
+const TODOS = [...ADMINS, ...DOCENTES, 'ADMIN_FINANCIERO', 'SECRETARIA'];
+
 export const PERMISSIONS = {
-  // Administrador: acceso total
-  MANAGE_USERS: [ROLES.ADMIN],
-  MANAGE_SUBJECTS: [ROLES.ADMIN, ROLES.CATEDRATICO],
-  MANAGE_GRADES: [ROLES.ADMIN, ROLES.CATEDRATICO],
-  VIEW_REPORTS: [ROLES.ADMIN, ROLES.CATEDRATICO],
-  SYSTEM_CONFIG: [ROLES.ADMIN],
-  VIEW_STATS: [ROLES.ADMIN, ROLES.CATEDRATICO],
+  MANAGE_USERS:    [...ADMINS, 'SECRETARIA'],
+  MANAGE_SUBJECTS: [...ADMINS, ...DOCENTES],
+  MANAGE_GRADES:   [...ADMINS, ...DOCENTES],
+  VIEW_REPORTS:    [...TODOS],
+  SYSTEM_CONFIG:   ['SUPER_ADMIN', 'ADMIN_ACADEMICO'],
+  VIEW_STATS:      [...TODOS],
 };
 
 export function hasPermission(userRole: string | undefined, permission: string[]): boolean {
@@ -20,9 +28,9 @@ export function hasPermission(userRole: string | undefined, permission: string[]
 }
 
 export function isAdmin(userRole: string | undefined): boolean {
-  return userRole === ROLES.ADMIN;
+  return ADMINS.includes(userRole ?? '');
 }
 
-export function isCatedratico(userRole: string | undefined): boolean {
-  return userRole === ROLES.CATEDRATICO;
+export function isDocente(userRole: string | undefined): boolean {
+  return userRole === ROLES.DOCENTE;
 }

@@ -3,18 +3,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission, PERMISSIONS } from "@/utils/permissions";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const menuItems = [
-    { href: "/dashboard", label: "Dashboard", icon: "📊" },
-    { href: "/users", label: "Usuarios", icon: "👥" },
-    { href: "/subjects", label: "Materias", icon: "📚" },
-    { href: "/grades", label: "Calificaciones", icon: "📝" },
-    { href: "/reports", label: "Reportes", icon: "📈" },
-    { href: "/settings", label: "Configuración", icon: "⚙️" },
+    { href: "/dashboard",  label: "Dashboard",      icon: "📊", permission: null },
+    { href: "/users",     label: "Usuarios",        icon: "👥", permission: PERMISSIONS.MANAGE_USERS },
+    { href: "/subjects",  label: "Materias",        icon: "📚", permission: PERMISSIONS.MANAGE_SUBJECTS },
+    { href: "/grades",    label: "Calificaciones",  icon: "📝", permission: PERMISSIONS.MANAGE_GRADES },
+    { href: "/reports",   label: "Reportes",        icon: "📈", permission: PERMISSIONS.VIEW_REPORTS },
+    { href: "/config",    label: "Configuración",   icon: "⚙️", permission: PERMISSIONS.SYSTEM_CONFIG },
   ];
+
+  const visibleItems = menuItems.filter(item =>
+    item.permission === null || hasPermission(user?.rol, item.permission)
+  );
 
   return (
     <aside className="w-64 bg-white shadow-lg border-r border-gray-200">
@@ -31,7 +38,7 @@ export default function Sidebar() {
       {/* menu navegacion */}
       <nav className="p-4">
         <ul className="space-y-2">
-          {menuItems.map((item) => (
+          {visibleItems.map((item) => (
             <li key={item.href}>
               <Link
                 href={item.href}
@@ -56,8 +63,8 @@ export default function Sidebar() {
             <div className="w-4 h-4 bg-white rounded-full"></div>
           </div>
           <div>
-            <div className="text-sm font-medium text-gray-900">Admin</div>
-            <div className="text-xs text-gray-500">Administrador</div>
+            <div className="text-sm font-medium text-gray-900">{user?.nombre || 'Usuario'}</div>
+            <div className="text-xs text-gray-500">{user?.rol || ''}</div>
           </div>
         </div>
       </div>
