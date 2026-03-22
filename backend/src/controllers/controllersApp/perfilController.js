@@ -6,12 +6,14 @@ exports.obtenerPerfilEstudiante = async (req, res) => {
     try {
         // CORRECCIÓN: Cambiamos academico.estudiante por estudiantes.estudiante
         const query = `
-            SELECT 
-                p.primernombre AS nombre,
-                p.primerapellido AS apellidos,
-                e.expediente,
-                ee.nombre AS "estadoAcademico",
-                c.nombre AS "nombreCarrera"
+          SELECT 
+                p.primernombre AS nombre, 
+                p.primerapellido AS apellidos, 
+                c.nombre AS "nombreCarrera", 
+                e.expediente, 
+                e.indiceglobal AS cum, 
+                e.porcentajeavance AS "porcentajeAvance",
+                ee.nombre AS "estadoAcademico"
             FROM estudiantes.estudiante e
             INNER JOIN personas.persona p ON e.idpersona = p.idpersona
             INNER JOIN academico.carrera c ON e.idcarrera = c.idcarrera

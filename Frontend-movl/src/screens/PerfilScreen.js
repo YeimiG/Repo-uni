@@ -16,7 +16,7 @@ import { Colors } from '../constants/Colors';
 const { width } = Dimensions.get('window');
 
 const PerfilScreen = ({ route }) => {
-  const { idUsuario } = route.params; 
+  const { idUsuario } = route.params;
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +51,7 @@ const PerfilScreen = ({ route }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.primaryBlue} />
-      
+
       {/* Fondo curvo superior */}
       <View style={[styles.upperDecoration, { backgroundColor: Colors.primaryBlue }]} />
 
@@ -63,13 +63,13 @@ const PerfilScreen = ({ route }) => {
         <View style={styles.card}>
           {/* Avatar con Iniciales */}
           <View style={[styles.avatarCircle, { backgroundColor: Colors.lightBlue }]}>
-             <Text style={[styles.avatarText, { color: Colors.black }]}>
-               {perfil?.nombre?.charAt(0)}{perfil?.apellidos?.charAt(0)}
-             </Text>
+            <Text style={[styles.avatarText, { color: Colors.black }]}>
+              {perfil?.nombre?.charAt(0)}{perfil?.apellidos?.charAt(0)}
+            </Text>
           </View>
 
           <View style={styles.infoWrapper}>
-            
+
             {/* NOMBRE COMPLETO */}
             <View style={styles.dataGroup}>
               <Text style={styles.label}>NOMBRE COMPLETO:</Text>
@@ -98,14 +98,38 @@ const PerfilScreen = ({ route }) => {
               </View>
             </View>
 
-            {/* ESTADO */}
+         
+
+            {/* CUM Y PROGRESO (Dos columnas) */}
+            <View style={styles.row}>
+              <View style={[styles.dataGroup, { flex: 1, marginRight: 10 }]}>
+                <Text style={styles.label}>CUM:</Text>
+                <View style={[styles.valueContainer, { backgroundColor: '#FFF9C4' }]}>
+                  <Text style={[styles.valueText, { color: '#FBC02D' }]}>
+                    {perfil?.cum || '0.00'}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.dataGroup, { flex: 1 }]}>
+                <Text style={styles.label}>AVANCE:</Text>
+                <View style={[styles.valueContainer, { backgroundColor: Colors.lightBlue }]}>
+                  <Text style={styles.valueText}>{perfil?.porcentajeAvance || 0}%</Text>
+                </View>
+              </View>
+            </View>
+
+            {/* BARRA DE PROGRESO VISUAL */}
+            <View style={styles.progressContainer}>
+              <View style={[styles.progressBar, { width: `${perfil?.porcentajeAvance || 0}%`, backgroundColor: Colors.primaryBlue }]} />
+            </View>
+
+            {/* ESTADO ACADÉMICO */}
             <View style={styles.dataGroup}>
               <Text style={styles.label}>ESTADO:</Text>
               <View style={[styles.statusBadge, { borderColor: Colors.primaryBlue }]}>
                 <View style={[styles.dot, { backgroundColor: Colors.primaryBlue }]} />
-                <Text style={styles.statusText}>
-                  {perfil?.estadoAcademico || perfil?.estadoacademico || 'ACTIVO'}
-                </Text>
+                <Text style={styles.statusText}>{perfil?.estadoAcademico || 'ACTIVO'}</Text>
               </View>
             </View>
 
@@ -121,9 +145,9 @@ const PerfilScreen = ({ route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#F2F2F2' 
+  container: {
+    flex: 1,
+    backgroundColor: '#F2F2F2'
   },
   upperDecoration: {
     position: 'absolute',
@@ -133,15 +157,15 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 60,
     borderBottomRightRadius: 60,
   },
-  center: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  scrollContent: { 
-    paddingHorizontal: 25, 
+  scrollContent: {
+    paddingHorizontal: 25,
     paddingTop: 40,
-    paddingBottom: 40 
+    paddingBottom: 40
   },
   header: {
     marginBottom: 50,
@@ -153,15 +177,15 @@ const styles = StyleSheet.create({
     color: Colors.black,
     letterSpacing: 2,
   },
-  card: { 
-    backgroundColor: Colors.white, 
-    borderRadius: 35, 
+  card: {
+    backgroundColor: Colors.white,
+    borderRadius: 35,
     paddingHorizontal: 20,
     paddingBottom: 30,
     alignItems: 'center',
-    elevation: 12, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.1, 
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
     shadowRadius: 15,
     shadowOffset: { width: 0, height: 10 },
   },
@@ -233,7 +257,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1,
-  }
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  progressContainer: {
+    height: 10,
+    width: '100%',
+    backgroundColor: '#E0E0E0',
+    borderRadius: 5,
+    marginBottom: 25, // Un poco de espacio antes del estado
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    borderRadius: 5,
+  },
 });
+
 
 export default PerfilScreen;
