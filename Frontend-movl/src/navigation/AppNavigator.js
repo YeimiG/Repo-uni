@@ -23,7 +23,7 @@ function MainTabs({ route }) {
     >
 
       <Tab.Screen 
-        name="Principal"
+        name="Servicios"
         component={ServiciosScreen}
         initialParams={{ idUsuario }}
         options={{
@@ -53,7 +53,6 @@ export default function AppNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="MainTabs" component={MainTabs} />
-      <Stack.Screen name="Servicios" component={ServiciosScreen} />
       <Stack.Screen name="Perfil" component={PerfilScreen} />
     </Stack.Navigator>
   );
