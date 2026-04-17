@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { Colors } from '../constants/Colors';
 import LoginScreen from '../screens/LoginScreen';
+import NotasScreen from '../screens/NotasScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 import ServiciosScreen from '../screens/ServiciosScreen';
 
@@ -35,7 +36,7 @@ function MainTabs({ route }) {
 
       <Tab.Screen 
         name="Notas"
-        component={ServiciosScreen}
+        component={NotasScreen}
         initialParams={{ idUsuario }}
         options={{
           tabBarIcon: ({color}) => (
