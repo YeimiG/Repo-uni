@@ -8,9 +8,11 @@ import { useToast } from "@/hooks/useToast";
 import Toast from "@/components/Toast";
 
 export default function ConfigPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast, showToast, hideToast } = useToast();
   const [saving, setSaving] = useState(false);
+
+  if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   if (!hasPermission(user?.rol, PERMISSIONS.SYSTEM_CONFIG)) {
     return (

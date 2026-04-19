@@ -29,7 +29,7 @@ const FORM_EMPTY = {
 };
 
 export default function UsersPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [roles, setRoles] = useState<Rol[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,6 +113,8 @@ export default function UsersPage() {
     exportToCSV(filteredUsuarios, "usuarios_ieproes");
     showToast("Usuarios exportados correctamente", "success");
   }
+
+  if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   if (!hasPermission(user?.rol, PERMISSIONS.MANAGE_USERS)) {
     return (

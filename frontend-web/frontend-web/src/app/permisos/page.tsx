@@ -27,7 +27,7 @@ interface Docente { iddocente: number; nombre: string; }
 interface Materia { idgrupo: number; idmateria: number; nombre: string; codigomateria: string; }
 
 export default function PermisosPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast, showToast, hideToast } = useToast();
 
   const [periodos, setPeriodos] = useState<Periodo[]>([]);
@@ -89,6 +89,8 @@ export default function PermisosPage() {
     if (res.success) { showToast("Edición reseteada", "success"); loadAll(); }
     else showToast(res.message || "Error", "error");
   }
+
+  if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   if (!hasPermission(user?.rol, PERMISSIONS.SYSTEM_CONFIG)) {
     return (

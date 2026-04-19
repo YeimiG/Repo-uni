@@ -1,5 +1,5 @@
 import { getUser } from "@/services/auth.service";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export interface User {
   idUsuario: number;
@@ -11,10 +11,17 @@ export interface User {
 }
 
 export function useAuth() {
-  const [user] = useState<User | null>(() => getUser());
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setUser(getUser());
+    setLoading(false);
+  }, []);
 
   return {
     isAuth: !!user,
     user,
+    loading,
   };
 }

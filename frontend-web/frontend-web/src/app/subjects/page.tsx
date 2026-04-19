@@ -19,7 +19,7 @@ interface Estudiante { idestudiante: number; carnet: string; nombre: string; idi
 interface GrupoDisponible { idgrupo: number; cupomaximo: number; inscritos: number; ciclo: string; docente: string; }
 
 export default function SubjectsPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast, showToast, hideToast } = useToast();
   const [materias, setMaterias] = useState<Materia[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,6 +79,8 @@ export default function SubjectsPage() {
     if (gRes.success) setGruposDisponibles(gRes.grupos);
     setShowMoverModal(true);
   }
+
+  if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   if (!hasPermission(user?.rol, PERMISSIONS.MANAGE_SUBJECTS)) {
     return (

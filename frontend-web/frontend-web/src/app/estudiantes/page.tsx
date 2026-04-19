@@ -25,7 +25,7 @@ const FORM_EMPTY = {
 };
 
 export default function EstudiantesPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast, showToast, hideToast } = useToast();
 
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
@@ -89,6 +89,8 @@ export default function EstudiantesPage() {
     if (res.success) { showToast(res.message, "success"); loadAll(); }
     else showToast("Error al cambiar estado", "error");
   }
+
+  if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   if (!hasPermission(user?.rol, PERMISSIONS.MANAGE_USERS)) {
     return (

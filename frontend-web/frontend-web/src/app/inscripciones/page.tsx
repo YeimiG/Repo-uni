@@ -23,7 +23,7 @@ interface Estudiante { idestudiante: number; expediente: string; primernombre: s
 interface Periodo { idperiodo: number; nombre: string; año: number; numeroperiodo: number; activo: boolean; }
 
 export default function InscripcionesPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast, showToast, hideToast } = useToast();
 
   const [inscripciones, setInscripciones] = useState<Inscripcion[]>([]);
@@ -78,6 +78,8 @@ export default function InscripcionesPage() {
     if (res.success) { showToast("Inscripción retirada", "success"); loadAll(); }
     else showToast(res.message || "Error", "error");
   }
+
+  if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   if (!hasPermission(user?.rol, PERMISSIONS.MANAGE_SUBJECTS)) {
     return (

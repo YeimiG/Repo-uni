@@ -25,7 +25,7 @@ interface StudentGrade {
 interface Materia { idgrupo: number; nombre: string; codigomateria: string; }
 
 export default function GradesPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const searchParams = useSearchParams();
   const { toast, showToast, hideToast } = useToast();
 
@@ -83,6 +83,8 @@ export default function GradesPage() {
     else showToast(r.message || "Error al guardar", "error");
     setSaving(null);
   }
+
+  if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   if (!hasPermission(user?.rol, PERMISSIONS.MANAGE_GRADES)) {
     return (

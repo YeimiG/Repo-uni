@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const authMobile = require("../controllers/controllersApp/authMobileController");
-const perfilMobile = require("../controllers/controllersApp/perfilController");
-const notasMobile = require("../controllers/controllersApp/notasController");
+const authMobile = require("../../controllers/controllersApp/authMobileController");
+const perfilMobile = require("../../controllers/controllersApp/perfilController");
+const notasMobile = require("../../controllers/controllersApp/notasController");
 
 // Ruta de Login
 router.post("/login", authMobile.loginMobile);

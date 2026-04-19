@@ -12,7 +12,7 @@ export default function Sidebar() {
 
   const menuItems = [
     { href: "/dashboard",     label: "Dashboard",        icon: "📊", permission: null },
-    { href: "/usuarios",      label: "Usuarios",          icon: "👥", permission: PERMISSIONS.MANAGE_USERS },
+    { href: "/users",        label: "Usuarios",          icon: "👥", permission: PERMISSIONS.MANAGE_USERS },
     { href: "/estudiantes",   label: "Estudiantes",       icon: "🎓", permission: PERMISSIONS.MANAGE_USERS },
     { href: "/inscripciones", label: "Inscripciones",     icon: "📋", permission: PERMISSIONS.MANAGE_SUBJECTS },
     { href: "/subjects",      label: "Materias",          icon: "📚", permission: PERMISSIONS.MANAGE_SUBJECTS },

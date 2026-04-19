@@ -10,7 +10,7 @@ import axios from "axios";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 export default function ReportsPage() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [rendimiento, setRendimiento] = useState<any[]>([]);
   const [estadisticas, setEstadisticas] = useState<any>(null);
   const [loadingR, setLoadingR] = useState(false);
@@ -33,6 +33,8 @@ export default function ReportsPage() {
     } catch {}
     setLoadingE(false);
   }
+
+  if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
 
   if (!hasPermission(user?.rol, PERMISSIONS.VIEW_REPORTS)) {
     return (
