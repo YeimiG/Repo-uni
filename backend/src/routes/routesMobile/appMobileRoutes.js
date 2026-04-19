@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
+const authMobile = require("../controllers/controllersApp/authMobileController");
+const perfilMobile = require("../controllers/controllersApp/perfilController");
+const notasMobile = require("../controllers/controllersApp/notasController");
 
-// Importamos los controladores
-const { login } = require("../controllers/controllersApp/loginControllerApp");
-const { obtenerPerfilEstudiante } = require("../controllers/controllersApp/perfilController");
-const {obtenerNotasActuales } = require("../controllers/notasController");
+// Ruta de Login
+router.post("/login", authMobile.loginMobile);
 
-router.post("/login", login);
+// Ruta de Perfil
+router.get("/perfil/:idUsuario", perfilMobile.obtenerPerfilEstudiante);
 
-
-router.get("/perfil/:idUsuario", obtenerPerfilEstudiante);
-
-router.get("/actuales/:idUsuario", obtenerNotasActuales);
+// Ruta de Notas (app móvil)
+router.get("/actuales/:idUsuario", notasMobile.obtenerNotasActuales);
 
 module.exports = router;

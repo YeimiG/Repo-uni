@@ -1,4 +1,4 @@
-const db = require("../config/db");
+const db = require("../../config/db");
 
 // Obtener materias según el rol del usuario
 exports.getMaterias = async (req, res) => {
@@ -17,7 +17,7 @@ exports.getMaterias = async (req, res) => {
           m.codigo as codigomateria,
           m.nombre,
           m.unidadesvalorativas as creditos,
-          pd.primernombre || ' ' || pd.primerapellido as docente,
+          COALESCE(pd.primernombre || ' ' || pd.primerapellido, 'Sin asignar') as docente,
           g.cupomaximo,
           COUNT(i.idinscripcion) as inscritos,
           p.nombre || '-' || p.numeroperiodo as ciclo
@@ -40,7 +40,7 @@ exports.getMaterias = async (req, res) => {
           m.codigo as codigomateria,
           m.nombre,
           m.unidadesvalorativas as creditos,
-          pd.primernombre || ' ' || pd.primerapellido as docente,
+          COALESCE(pd.primernombre || ' ' || pd.primerapellido, 'Sin asignar') as docente,
           g.cupomaximo,
           COUNT(i.idinscripcion) as inscritos,
           p.nombre || '-' || p.numeroperiodo as ciclo

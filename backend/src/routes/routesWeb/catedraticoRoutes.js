@@ -4,7 +4,7 @@ const {
   getEstudiantesGrupo,
   ingresarNotas,
   getPermisosEdicion
-} = require("../controllers/catedraticoController");
+} = require("../../controllers/controllersWeb/catedraticoController");
 
 router.get("/materias/:idCatedratico", getMateriasCatedratico);
 router.get("/estudiantes/:idGrupo", getEstudiantesGrupo);

@@ -11,12 +11,16 @@ export default function Sidebar() {
   const { user } = useAuth();
 
   const menuItems = [
-    { href: "/dashboard",  label: "Dashboard",      icon: "📊", permission: null },
-    { href: "/users",     label: "Usuarios",        icon: "👥", permission: PERMISSIONS.MANAGE_USERS },
-    { href: "/subjects",  label: "Materias",        icon: "📚", permission: PERMISSIONS.MANAGE_SUBJECTS },
-    { href: "/grades",    label: "Calificaciones",  icon: "📝", permission: PERMISSIONS.MANAGE_GRADES },
-    { href: "/reports",   label: "Reportes",        icon: "📈", permission: PERMISSIONS.VIEW_REPORTS },
-    { href: "/config",    label: "Configuración",   icon: "⚙️", permission: PERMISSIONS.SYSTEM_CONFIG },
+    { href: "/dashboard",     label: "Dashboard",        icon: "📊", permission: null },
+    { href: "/usuarios",      label: "Usuarios",          icon: "👥", permission: PERMISSIONS.MANAGE_USERS },
+    { href: "/estudiantes",   label: "Estudiantes",       icon: "🎓", permission: PERMISSIONS.MANAGE_USERS },
+    { href: "/inscripciones", label: "Inscripciones",     icon: "📋", permission: PERMISSIONS.MANAGE_SUBJECTS },
+    { href: "/subjects",      label: "Materias",          icon: "📚", permission: PERMISSIONS.MANAGE_SUBJECTS },
+    { href: "/grades",        label: "Calificaciones",    icon: "📝", permission: PERMISSIONS.MANAGE_GRADES },
+    { href: "/reports",       label: "Reportes",          icon: "📈", permission: PERMISSIONS.VIEW_REPORTS },
+    { href: "/periodos",      label: "Períodos",          icon: "🗓️", permission: PERMISSIONS.SYSTEM_CONFIG },
+    { href: "/permisos",      label: "Permisos de Notas", icon: "🔐", permission: PERMISSIONS.SYSTEM_CONFIG },
+    { href: "/config",        label: "Configuración",     icon: "⚙️", permission: PERMISSIONS.SYSTEM_CONFIG },
   ];
 
   const visibleItems = menuItems.filter(item =>

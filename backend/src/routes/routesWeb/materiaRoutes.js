@@ -3,7 +3,7 @@ const {
   getMaterias,
   getMateriaById,
 //  crearMateria
-} = require("../controllers/materiaController");
+} = require("../../controllers/controllersWeb/materiaController");
 
 router.get("/", getMaterias);
 router.get("/:id", getMateriaById);

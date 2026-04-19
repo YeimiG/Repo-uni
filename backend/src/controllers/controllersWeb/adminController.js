@@ -1,4 +1,4 @@
-const db = require("../config/db");
+const db = require("../../config/db");
 
 // Obtener todos los usuarios
 exports.getUsuarios = async (req, res) => {
@@ -7,18 +7,19 @@ exports.getUsuarios = async (req, res) => {
       SELECT 
         u.idusuario,
         u.correo,
+        u.activo,
         r.nombrerol as rol,
         COALESCE(
-          p_e.primernombre || ' ' || p_e.primerapellido,
           p_d.primernombre || ' ' || p_d.primerapellido,
+          p_e.primernombre || ' ' || p_e.primerapellido,
           u.correo
         ) as nombre
       FROM seguridad.usuario u
       INNER JOIN seguridad.rol r ON u.idrol = r.idrol
-      LEFT JOIN estudiantes.estudiante e ON u.idusuario = e.idusuario
-      LEFT JOIN personas.persona p_e ON e.idpersona = p_e.idpersona
       LEFT JOIN docentes.docente d ON u.idusuario = d.idusuario
       LEFT JOIN personas.persona p_d ON d.idpersona = p_d.idpersona
+      LEFT JOIN estudiantes.estudiante e ON u.idusuario = e.idusuario
+      LEFT JOIN personas.persona p_e ON e.idpersona = p_e.idpersona
       ORDER BY r.nombrerol, u.correo
     `;
 
@@ -157,11 +158,11 @@ exports.getGruposDisponibles = async (req, res) => {
         g.cupomaximo,
         COUNT(i.idinscripcion) as inscritos,
         p.nombre || '-' || p.numeroperiodo as ciclo,
-        pd.primernombre || ' ' || pd.primerapellido as docente
+        COALESCE(pd.primernombre || ' ' || pd.primerapellido, 'Sin docente') as docente
       FROM grupos.grupo g
       INNER JOIN academico.periodoacademico p ON g.idperiodo = p.idperiodo
-      INNER JOIN docentes.docente d ON g.iddocente = d.iddocente
-      INNER JOIN personas.persona pd ON d.idpersona = pd.idpersona
+      LEFT JOIN docentes.docente d ON g.iddocente = d.iddocente
+      LEFT JOIN personas.persona pd ON d.idpersona = pd.idpersona
       LEFT JOIN inscripciones.inscripcion i ON g.idgrupo = i.idgrupo
       WHERE g.idmateria = $1
       GROUP BY g.idgrupo, g.cupomaximo, p.nombre, p.numeroperiodo, pd.primernombre, pd.primerapellido
@@ -314,10 +315,10 @@ exports.crearUsuario = async (req, res) => {
       return res.status(400).json({ success: false, message: "El correo ya está registrado" });
     }
 
-    // Crear persona
+    // Crear persona (fechaNacimiento nullable según db_uni_ii_complemento.sql)
     const persona = await db.query(
-      `INSERT INTO personas.persona (primernombre, primerapellido, activo, fecharegistro)
-       VALUES ($1, $2, true, NOW()) RETURNING idpersona`,
+      `INSERT INTO personas.persona (primernombre, primerapellido, fechanacimiento, activo, fecharegistro)
+       VALUES ($1, $2, NULL, true, NOW()) RETURNING idpersona`,
       [primernombre, primerapellido]
     );
     const idpersona = persona.rows[0].idpersona;
@@ -335,7 +336,7 @@ exports.crearUsuario = async (req, res) => {
     if (rol.rows[0]?.nombrerol === 'DOCENTE') {
       await db.query(
         `INSERT INTO docentes.docente (idpersona, idusuario, codigodocente, fechaingreso, activo)
-         VALUES ($1, $2, $3, NOW(), true)`,
+         VALUES ($1, $2, $3, CURRENT_DATE, true)`,
         [idpersona, idusuario, `DOC-${idusuario}`]
       );
     }

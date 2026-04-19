@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const materiasController = require("../controllers/materiasController");
+const materiasController = require("../../controllers/controllersWeb/materiasController");
 
 router.get("/", materiasController.getMaterias);
 router.get("/:idgrupo/estudiantes", materiasController.getEstudiantesPorGrupo);

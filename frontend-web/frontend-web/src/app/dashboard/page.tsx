@@ -105,6 +105,30 @@ export default function DashboardPage() {
                       </div>
                     </Link>
                   )}
+                  {hasPermission(user?.rol, PERMISSIONS.MANAGE_USERS) && (
+                    <Link href="/estudiantes">
+                      <div className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer">
+                        <span className="text-xl mr-3">🎓</span>
+                        <div>
+                          <div className="font-medium text-gray-800">Gestionar Estudiantes</div>
+                          <div className="text-xs text-gray-500">Crear, editar y activar estudiantes</div>
+                        </div>
+                        <span className="ml-auto text-gray-400">→</span>
+                      </div>
+                    </Link>
+                  )}
+                  {hasPermission(user?.rol, PERMISSIONS.MANAGE_SUBJECTS) && (
+                    <Link href="/inscripciones">
+                      <div className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer">
+                        <span className="text-xl mr-3">📋</span>
+                        <div>
+                          <div className="font-medium text-gray-800">Inscripciones</div>
+                          <div className="text-xs text-gray-500">Inscribir y retirar estudiantes de grupos</div>
+                        </div>
+                        <span className="ml-auto text-gray-400">→</span>
+                      </div>
+                    </Link>
+                  )}
                   {hasPermission(user?.rol, PERMISSIONS.MANAGE_SUBJECTS) && (
                     <Link href="/subjects">
                       <div className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer">
@@ -144,6 +168,30 @@ export default function DashboardPage() {
                         <div>
                           <div className="font-medium text-gray-800">Reportes</div>
                           <div className="text-xs text-gray-500">Rendimiento académico y estadísticas</div>
+                        </div>
+                        <span className="ml-auto text-gray-400">→</span>
+                      </div>
+                    </Link>
+                  )}
+                  {hasPermission(user?.rol, PERMISSIONS.SYSTEM_CONFIG) && (
+                    <Link href="/periodos">
+                      <div className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer">
+                        <span className="text-xl mr-3">🗓️</span>
+                        <div>
+                          <div className="font-medium text-gray-800">Períodos Académicos</div>
+                          <div className="text-xs text-gray-500">Crear y activar ciclos académicos</div>
+                        </div>
+                        <span className="ml-auto text-gray-400">→</span>
+                      </div>
+                    </Link>
+                  )}
+                  {hasPermission(user?.rol, PERMISSIONS.SYSTEM_CONFIG) && (
+                    <Link href="/permisos">
+                      <div className="flex items-center p-3 rounded-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer">
+                        <span className="text-xl mr-3">🔐</span>
+                        <div>
+                          <div className="font-medium text-gray-800">Permisos de Notas</div>
+                          <div className="text-xs text-gray-500">Habilitar edición de parciales por catedrático</div>
                         </div>
                         <span className="ml-auto text-gray-400">→</span>
                       </div>

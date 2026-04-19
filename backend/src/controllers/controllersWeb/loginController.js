@@ -1,4 +1,4 @@
-const db = require("../config/db");
+const db = require("../../config/db");
 const jwt = require("jsonwebtoken");
 
 exports.login = async (req, res) => {
@@ -25,7 +25,8 @@ exports.login = async (req, res) => {
 
     const usuario = result.rows[0];
 
-    if (usuario.rol === "ESTUDIANTE" || usuario.rol === "TUTOR") {
+    const rolesWeb = ["SUPER_ADMIN", "ADMIN_ACADEMICO", "ADMIN_FINANCIERO", "COORDINADOR", "DOCENTE", "SECRETARIA"];
+    if (!rolesWeb.includes(usuario.rol)) {
       return res.status(403).json({ success: false, message: "Acceso no autorizado" });
     }
 

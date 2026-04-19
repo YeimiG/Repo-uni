@@ -1,13 +1,17 @@
-const db = require("../config/db");
+const db = require("../../config/db");
 
 exports.getMateriasCatedratico = async (req, res) => {
   const { idCatedratico } = req.params;
   try {
     const query = `
-      SELECT m.idmateria, m.codigo as codigoMateria, m.nombre as nombreMateria, g.idgrupo, g.numerogrupo
+      SELECT m.idmateria, m.codigo as codigoMateria, m.nombre as nombreMateria,
+             g.idgrupo, g.numerogrupo,
+             p.nombre || '-' || p.numeroperiodo as ciclo
       FROM academico.materia m
       INNER JOIN grupos.grupo g ON m.idmateria = g.idmateria
+      INNER JOIN academico.periodoacademico p ON g.idperiodo = p.idperiodo
       WHERE g.iddocente = $1
+        AND p.activo = true
     `;
     const result = await db.query(query, [idCatedratico]);
     res.json(result.rows);
