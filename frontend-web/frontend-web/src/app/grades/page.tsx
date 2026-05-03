@@ -34,6 +34,7 @@ export default function GradesPage() {
   const [students, setStudents] = useState<StudentGrade[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState<number | null>(null);
+  const [savingAll, setSavingAll] = useState(false);
 
   useEffect(() => {
     if (!user?.idUsuario) return;
@@ -82,6 +83,24 @@ export default function GradesPage() {
     if (r.success) { showToast("Notas guardadas", "success"); loadEstudiantes(); }
     else showToast(r.message || "Error al guardar", "error");
     setSaving(null);
+  }
+
+  async function handleSaveAll() {
+    if (students.length === 0) return;
+    if (!confirm(`¿Guardar notas de todos los ${students.length} estudiantes?`)) return;
+    setSavingAll(true);
+    let ok = 0; let err = 0;
+    for (const s of students) {
+      const r = await guardarNotas({
+        idinscripcion: s.idinscripcion,
+        primero: s.parcial1, segundo: s.parcial2, tercero: s.parcial3,
+        cuarto: s.parcial4, quinto: s.parcial5,
+      });
+      if (r.success) ok++; else err++;
+    }
+    setSavingAll(false);
+    if (err === 0) { showToast(`${ok} notas guardadas correctamente`, "success"); loadEstudiantes(); }
+    else showToast(`${ok} guardadas, ${err} con error`, "error");
   }
 
   if (authLoading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>;
@@ -140,9 +159,16 @@ export default function GradesPage() {
                 <h3 className="text-lg font-semibold text-gray-800">
                   {materias.find(m => m.idgrupo.toString() === selectedGrupo)?.nombre}
                 </h3>
-                <span className="text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 py-1 rounded">
-                  Escala: 0 – 10 | Aprobado ≥ 6
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs bg-blue-50 border border-blue-200 text-blue-700 px-3 py-1 rounded">
+                    Escala: 0 – 10 | Aprobado ≥ 6
+                  </span>
+                  {students.length > 0 && (
+                    <button onClick={handleSaveAll} disabled={savingAll} className="btn-ieproes text-xs py-1 px-3">
+                      {savingAll ? "⏳ Guardando..." : "💾 Guardar Todo"}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {loading ? (
