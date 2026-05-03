@@ -3,37 +3,46 @@ import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, View } fro
 import API from '../services/api';
 
 const NotasScreen = ({ route }) => {
-    const { idUsuario } = route.params; // Se recibe desde el login o el perfil
+    // Soporta tanto params directos como params anidados del Tab Navigator
+    const idUsuario = route?.params?.idUsuario || route?.params?.params?.idUsuario;
     const [loading, setLoading] = useState(true);
     const [datos, setDatos] = useState(null);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        obtenerNotas();
-    }, []);
+        if (idUsuario) obtenerNotas();
+    }, [idUsuario]);
 
-   const obtenerNotas = async () => {
-    try {
-        setLoading(true);
-        
-        // URL FINAL: baseURL + /app/actuales/ID
-       // En tu NotasScreen.js
+    const obtenerNotas = async () => {
+        try {
+            setLoading(true);
+            setError(null);
             const response = await API.get(`/actuales/${idUsuario}`);
-        
-        if (response.data.success) {
-            setDatos(response.data.data);
-            console.log("Notas cargadas con éxito");
+            if (response.data.success) {
+                setDatos(response.data.data);
+            } else {
+                setError('No se encontraron notas.');
+            }
+        } catch (err) {
+            setError('Error al conectar con el servidor.');
+            console.error('Error notas:', err.message);
+        } finally {
+            setLoading(false);
         }
-    } catch (error) {
-        console.error("Error al traer notas:", error.response?.status);
-        // Si sale 404 aquí, revisa que el archivo appMobileRoutes.js 
-        // realmente tenga el router.get("/actuales/:idUsuario")
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" style={{ flex: 1 }} />;
+    }
+
+    if (error || !datos) {
+        return (
+            <SafeAreaView style={styles.container}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ color: '#666', fontSize: 16 }}>{error || 'Sin inscripciones activas.'}</Text>
+                </View>
+            </SafeAreaView>
+        );
     }
 
     const renderMateria = ({ item }) => (
@@ -42,7 +51,7 @@ const NotasScreen = ({ route }) => {
                 <Text style={styles.materiaCodigo}>{item.materia_codigo}</Text>
                 <Text style={styles.materiaNombre}>{item.materia_nombre}</Text>
             </View>
-            <Text style={styles.notaFinalText}>
+            <Text style={[styles.notaFinalText, { color: parseFloat(item.promedio_actual) >= 6 ? '#2E7D32' : '#C62828' }]}>
                 {item.promedio_actual ? parseFloat(item.promedio_actual).toFixed(1) : '0.0'}
             </Text>
         </View>
@@ -52,31 +61,36 @@ const NotasScreen = ({ route }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.cardMain}>
                 <View style={styles.headerTable}>
-                    <Text style={styles.headerText}>📅 CICLO 01/26</Text>
+                    <Text style={styles.headerText}>📅 CICLO ACTUAL</Text>
                     <Text style={styles.headerText}>NOTA FINAL</Text>
                 </View>
 
-                <FlatList
-                    data={datos?.notas}
-                    keyExtractor={(item) => item.materia_codigo}
-                    renderItem={renderMateria}
-                    contentContainerStyle={styles.listContent}
-                />
+                {datos.notas.length === 0 ? (
+                    <View style={{ padding: 30, alignItems: 'center' }}>
+                        <Text style={{ color: '#999' }}>No hay materias inscritas activas.</Text>
+                    </View>
+                ) : (
+                    <FlatList
+                        data={datos.notas}
+                        keyExtractor={(item) => item.materia_codigo}
+                        renderItem={renderMateria}
+                        contentContainerStyle={styles.listContent}
+                    />
+                )}
             </View>
 
-            {/* Cuadro de Resumen Inferior */}
             <View style={styles.resumenContainer}>
                 <View style={styles.resumenItem}>
                     <Text style={styles.resumenLabel}>Total UV</Text>
-                    <Text style={styles.resumenValue}>{datos?.resumen.totalUV}</Text>
+                    <Text style={styles.resumenValue}>{datos.resumen?.totalUV ?? '0.0'}</Text>
                 </View>
                 <View style={styles.resumenItem}>
                     <Text style={styles.resumenLabel}>Nota * UV</Text>
-                    <Text style={styles.resumenValue}>{datos?.resumen.notaUV}</Text>
+                    <Text style={styles.resumenValue}>{datos.resumen?.notaUV ?? '0.0'}</Text>
                 </View>
                 <View style={styles.resumenItem}>
                     <Text style={styles.resumenLabel}>CUM de ciclo</Text>
-                    <Text style={styles.resumenValue}>{datos?.resumen.cumCiclo}</Text>
+                    <Text style={styles.resumenValue}>{datos.resumen?.cumCiclo ?? '0.0'}</Text>
                 </View>
             </View>
         </SafeAreaView>

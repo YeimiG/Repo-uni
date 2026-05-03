@@ -11,7 +11,6 @@ import ServiciosScreen from '../screens/ServiciosScreen';
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 function MainTabs({ route }) {
-
   const idUsuario = route?.params?.idUsuario;
 
   return (
@@ -22,7 +21,6 @@ function MainTabs({ route }) {
         tabBarActiveTintColor: Colors.black,
       }}
     >
-
       <Tab.Screen 
         name="Servicios"
         component={ServiciosScreen}

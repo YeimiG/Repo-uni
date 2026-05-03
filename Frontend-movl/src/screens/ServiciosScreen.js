@@ -75,7 +75,7 @@ const ServiciosScreen = ({ navigation, route }) => {
         <View style={styles.row}>
           <TouchableOpacity 
             style={styles.smallCard} 
-            onPress={() => servicioProximamente("Notas")}
+            onPress={() => navigation.navigate('Notas', { idUsuario })}
           >
             <Text style={styles.iconEmojiSmall}>📝</Text>
             <Text style={styles.smallCardTitle}>Notas</Text>
@@ -107,10 +107,6 @@ const ServiciosScreen = ({ navigation, route }) => {
 
       </ScrollView>
 
-      {/* Identificador visual de sesión (Debug) */}
-      <View style={styles.footerInfo}>
-        <Text style={styles.footerText}>Usuario ID: {idUsuario || 'No identificado'}</Text>
-      </View>
     </SafeAreaView>
   );
 };
