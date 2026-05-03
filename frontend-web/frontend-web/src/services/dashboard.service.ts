@@ -1,10 +1,8 @@
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+import api from "@/services/api";
 
 export async function getDashboardStats() {
   try {
-    const { data } = await axios.get(`${API_URL}/api/dashboard/stats`);
+    const { data } = await api.get(`/api/dashboard/stats`);
     return data;
   } catch (error) {
     console.error("Error obteniendo estadísticas:", error);
@@ -22,7 +20,7 @@ export async function getDashboardStats() {
 
 export async function getDashboardActividad() {
   try {
-    const { data } = await axios.get(`${API_URL}/api/dashboard/actividad`);
+    const { data } = await api.get(`/api/dashboard/actividad`);
     return data;
   } catch (error) {
     console.error("Error obteniendo actividad:", error);
@@ -32,3 +30,4 @@ export async function getDashboardActividad() {
     };
   }
 }
+

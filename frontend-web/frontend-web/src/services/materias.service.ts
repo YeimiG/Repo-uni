@@ -1,10 +1,8 @@
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+import api from "@/services/api";
 
 export async function getMaterias(idUsuario: number, rol: string) {
   try {
-    const { data } = await axios.get(`${API_URL}/api/grupos`, {
+    const { data } = await api.get(`/api/grupos`, {
       params: { idUsuario, rol },
     });
     return data;
@@ -16,7 +14,7 @@ export async function getMaterias(idUsuario: number, rol: string) {
 
 export async function getEstudiantesPorGrupo(idgrupo: number) {
   try {
-    const { data } = await axios.get(`${API_URL}/api/grupos/${idgrupo}/estudiantes`);
+    const { data } = await api.get(`/api/grupos/${idgrupo}/estudiantes`);
     return data;
   } catch (error) {
     console.error("Error obteniendo estudiantes:", error);
@@ -26,10 +24,11 @@ export async function getEstudiantesPorGrupo(idgrupo: number) {
 
 export async function guardarNotas(notasData: any) {
   try {
-    const { data } = await axios.post(`${API_URL}/api/grupos/notas`, notasData);
+    const { data } = await api.post(`/api/grupos/notas`, notasData);
     return data;
   } catch (error) {
     console.error("Error guardando notas:", error);
     return { success: false, message: "Error al guardar notas" };
   }
 }
+

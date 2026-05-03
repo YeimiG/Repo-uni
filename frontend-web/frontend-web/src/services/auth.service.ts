@@ -5,6 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
 interface LoginResponse {
   success: boolean;
+  token: string;
   usuario: {
     idUsuario: number;
     correo: string;
@@ -26,6 +27,7 @@ export async function login(correo: string, clave: string) {
 
   if (data.success) {
     localStorage.setItem("user", JSON.stringify(data.usuario));
+    localStorage.setItem("token", data.token);
     return data;
   }
 

@@ -1,7 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const materiasController = require("../../controllers/controllersWeb/materiasController");
+const { verificarToken } = require("../../middlewares/authMiddleware");
 
+router.use(verificarToken);
 router.get("/", materiasController.getMaterias);
 router.get("/:idgrupo/estudiantes", materiasController.getEstudiantesPorGrupo);
 router.post("/notas", materiasController.guardarNotas);

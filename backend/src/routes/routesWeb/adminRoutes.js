@@ -1,21 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const adminController = require("../../controllers/controllersWeb/adminController");
+const { verificarToken, soloAdmin } = require("../../middlewares/authMiddleware");
+
+router.use(verificarToken);
 
 router.get("/usuarios", adminController.getUsuarios);
 router.get("/docentes", adminController.getDocentes);
-router.put("/grupos/:idgrupo/asignar-docente", adminController.asignarDocente);
-router.put("/inscripciones/:idinscripcion/mover", adminController.moverEstudiante);
+router.put("/grupos/:idgrupo/asignar-docente", soloAdmin, adminController.asignarDocente);
+router.put("/inscripciones/:idinscripcion/mover", soloAdmin, adminController.moverEstudiante);
 router.get("/materias/:idmateria/grupos-disponibles", adminController.getGruposDisponibles);
-
-// Rutas de permisos y períodos
 router.get("/periodos-notas", adminController.getPeriodosNotas);
-router.put("/periodos-notas/:idPeriodo", adminController.actualizarPeriodo);
+router.put("/periodos-notas/:idPeriodo", soloAdmin, adminController.actualizarPeriodo);
 router.get("/permisos-edicion", adminController.getPermisosEdicion);
-router.post("/permisos-edicion", adminController.habilitarPermiso);
-router.put("/permisos-edicion/:idPermiso/resetear", adminController.resetearEdicion);
-
-// Rutas de secretaría
+router.post("/permisos-edicion", soloAdmin, adminController.habilitarPermiso);
+router.put("/permisos-edicion/:idPermiso/resetear", soloAdmin, adminController.resetearEdicion);
 router.get("/roles", adminController.getRoles);
 router.post("/usuarios", adminController.crearUsuario);
 router.put("/usuarios/:idusuario", adminController.editarUsuario);

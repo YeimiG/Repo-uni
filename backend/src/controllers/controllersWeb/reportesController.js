@@ -2,7 +2,7 @@ const db = require("../../config/db");
 
 exports.getRendimiento = async (req, res) => {
   try {
-    const query = `
+    const result = await db.query(`
       SELECT 
         m.nombre as materia,
         COUNT(n.idnotafinal) as total_notas,
@@ -16,11 +16,9 @@ exports.getRendimiento = async (req, res) => {
       WHERE n.notafinal IS NOT NULL
       GROUP BY m.nombre
       ORDER BY promedio DESC
-    `;
-    const result = await db.query(query);
+    `);
     res.json({ success: true, data: result.rows });
   } catch (error) {
-    console.error("ERROR REPORTE:", error);
     res.status(500).json({ success: false, message: "Error al generar reporte" });
   }
 };
@@ -38,7 +36,33 @@ exports.getEstadisticas = async (req, res) => {
     `);
     res.json({ success: true, data: stats.rows[0] });
   } catch (error) {
-    console.error("ERROR ESTADISTICAS:", error);
     res.status(500).json({ success: false, message: "Error al obtener estadísticas" });
+  }
+};
+
+exports.getHistorialEstudiante = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query(`
+      SELECT
+        per.nombre || '-' || per.numeroperiodo as ciclo,
+        per.año,
+        m.codigo as codigomateria,
+        m.nombre as materia,
+        m.unidadesvalorativas as uv,
+        nf.nota1, nf.nota2, nf.nota3, nf.nota4, nf.nota5,
+        nf.notafinal,
+        nf.estado as resultado
+      FROM inscripciones.inscripcion i
+      INNER JOIN grupos.grupo g ON i.idgrupo = g.idgrupo
+      INNER JOIN academico.materia m ON g.idmateria = m.idmateria
+      INNER JOIN academico.periodoacademico per ON g.idperiodo = per.idperiodo
+      LEFT JOIN evaluaciones.notafinal nf ON i.idinscripcion = nf.idinscripcion
+      WHERE i.idestudiante = $1
+      ORDER BY per.año DESC, per.numeroperiodo DESC, m.nombre
+    `, [id]);
+    res.json({ success: true, data: result.rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Error al obtener historial" });
   }
 };

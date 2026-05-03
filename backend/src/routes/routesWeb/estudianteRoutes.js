@@ -4,7 +4,9 @@ const {
   editarEstudiante, toggleEstudiante,
   getCarreras, getEstadosEstudiante, getPerfilEstudiante
 } = require("../../controllers/controllersWeb/estudianteController");
+const { verificarToken } = require("../../middlewares/authMiddleware");
 
+router.use(verificarToken);
 router.get("/", getEstudiantes);
 router.post("/", crearEstudiante);
 router.get("/carreras", getCarreras);
