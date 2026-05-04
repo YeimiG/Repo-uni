@@ -22,6 +22,7 @@ const materiasRoutes    = require("./routes/routesWeb/materiasRoutes");
 const catedraticoRoutes = require("./routes/routesWeb/catedraticoRoutes");
 const reportesRoutes    = require("./routes/routesWeb/reportesRoutes");
 const periodoRoutes     = require("./routes/routesWeb/periodoRoutes");
+const academicaRoutes   = require("./routes/routesWeb/academicaRoutes");
 
 app.use("/api/auth",          authRoutes);
 app.use("/api/admin",         adminRoutes);
@@ -33,5 +34,6 @@ app.use("/api/grupos",        materiasRoutes);
 app.use("/api/catedratico",   catedraticoRoutes);
 app.use("/api/reportes",      reportesRoutes);
 app.use("/api/periodos",      periodoRoutes);
+app.use("/api/academica",     academicaRoutes);
 
 module.exports = app;

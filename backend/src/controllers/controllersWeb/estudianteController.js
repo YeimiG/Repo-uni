@@ -54,6 +54,10 @@ exports.getEstudianteById = async (req, res) => {
 exports.crearEstudiante = async (req, res) => {
   const { primernombre, primerapellido, correo, clave, expediente, idcarrera, fechaingreso } = req.body;
   try {
+    if (!primernombre || !primerapellido || !correo || !clave || !expediente || !idcarrera) {
+      return res.status(400).json({ success: false, message: "Todos los campos son obligatorios" });
+    }
+
     // Verificar expediente único
     const existe = await db.query(`SELECT idestudiante FROM estudiantes.estudiante WHERE expediente = $1`, [expediente]);
     if (existe.rows.length > 0) return res.status(400).json({ success: false, message: "El expediente ya existe" });
@@ -64,18 +68,25 @@ exports.crearEstudiante = async (req, res) => {
 
     // Obtener idRol ESTUDIANTE
     const rolRes = await db.query(`SELECT idrol FROM seguridad.rol WHERE nombrerol = 'ESTUDIANTE' LIMIT 1`);
-    if (rolRes.rows.length === 0) return res.status(400).json({ success: false, message: "Rol ESTUDIANTE no encontrado en la DB" });
+    if (rolRes.rows.length === 0) return res.status(400).json({ success: false, message: "Rol ESTUDIANTE no encontrado. Agrégalo en seguridad.rol" });
     const idrol = rolRes.rows[0].idrol;
 
-    // Obtener estado ACTIVO por defecto
-    const estadoRes = await db.query(`SELECT idestado FROM estudiantes.estadoestudiante WHERE nombre ILIKE 'ACTIVO' LIMIT 1`);
-    if (estadoRes.rows.length === 0) return res.status(400).json({ success: false, message: "Estado ACTIVO no encontrado en la DB" });
+    // Obtener estado ACTIVO por defecto (busca variantes)
+    const estadoRes = await db.query(`SELECT idestado FROM estudiantes.estadoestudiante WHERE UPPER(nombre) IN ('ACTIVO','ACTIVA','REGULAR') LIMIT 1`);
+    if (estadoRes.rows.length === 0) return res.status(400).json({ success: false, message: "Estado ACTIVO no encontrado. Agrégalo en estudiantes.estadoestudiante" });
     const idestado = estadoRes.rows[0].idestado;
 
-    // Obtener plan de estudio activo de la carrera
+    // Obtener plan de estudio activo de la carrera (opcional, no bloquea)
     const planRes = await db.query(`SELECT idplanestudio FROM academico.planestudio WHERE idcarrera = $1 AND activo = true LIMIT 1`, [idcarrera]);
-    if (planRes.rows.length === 0) return res.status(400).json({ success: false, message: "No hay plan de estudio activo para esta carrera" });
-    const idplanestudio = planRes.rows[0].idplanestudio;
+    const idplanestudio = planRes.rows.length > 0 ? planRes.rows[0].idplanestudio : null;
+
+    // Si no hay plan activo, buscar cualquier plan de esa carrera
+    let idplanFinal = idplanestudio;
+    if (!idplanFinal) {
+      const planAny = await db.query(`SELECT idplanestudio FROM academico.planestudio WHERE idcarrera = $1 LIMIT 1`, [idcarrera]);
+      idplanFinal = planAny.rows.length > 0 ? planAny.rows[0].idplanestudio : null;
+    }
+    if (!idplanFinal) return res.status(400).json({ success: false, message: "No hay plan de estudio para esta carrera. Crea uno primero en la DB" });
 
     // Crear persona
     const persona = await db.query(
@@ -98,13 +109,13 @@ exports.crearEstudiante = async (req, res) => {
       `INSERT INTO estudiantes.estudiante
          (idpersona, expediente, fechaingreso, idcarrera, idplanestudio, idestado, idusuario, activo)
        VALUES ($1, $2, $3, $4, $5, $6, $7, true) RETURNING idestudiante`,
-      [idpersona, expediente, fechaingreso || new Date().toISOString().split("T")[0], idcarrera, idplanestudio, idestado, idusuario]
+      [idpersona, expediente, fechaingreso || new Date().toISOString().split("T")[0], idcarrera, idplanFinal, idestado, idusuario]
     );
 
     res.json({ success: true, message: "Estudiante creado correctamente", idestudiante: estudiante.rows[0].idestudiante });
   } catch (error) {
     console.error("ERROR CREAR ESTUDIANTE:", error);
-    res.status(500).json({ success: false, message: "Error al crear estudiante" });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
