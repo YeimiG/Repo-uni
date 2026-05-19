@@ -11,7 +11,9 @@ exports.obtenerNotasActuales = async (req, res) => {
                 m.nombre AS materia_nombre,
                 m.codigo AS materia_codigo,
                 m.unidadesValorativas AS uv,
-                nf.nota1, nf.nota2, nf.nota3, nf.nota4, nf.nota5,
+                nf.nota1, nf.nota2, nf.nota3,
+                COALESCE(nf.nota4, 0) AS nota4,
+                COALESCE(nf.nota5, 0) AS nota5,
                 nf.notaFinal AS promedio_actual,
                 nf.estado AS estado_nota,
                 ( (CASE WHEN nf.nota1 IS NOT NULL THEN 1 ELSE 0 END +
@@ -24,7 +26,7 @@ exports.obtenerNotasActuales = async (req, res) => {
             INNER JOIN academico.Materia m ON g.idMateria = m.idMateria
             LEFT JOIN evaluaciones.NotaFinal nf ON i.idInscripcion = nf.idInscripcion
             WHERE i.idEstudiante = (SELECT idEstudiante FROM estudiantes.Estudiante WHERE idUsuario = $1)
-              AND i.estado ILIKE 'ACTIVA';
+              AND i.estado ILIKE 'INSCRITO';
         `;
 
         const result = await db.query(query, [idUsuario]);

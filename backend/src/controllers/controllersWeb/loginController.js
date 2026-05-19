@@ -1,5 +1,6 @@
 const db = require("../../config/db");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 exports.login = async (req, res) => {
   const { correo, clave } = req.body;
@@ -30,7 +31,12 @@ exports.login = async (req, res) => {
       return res.status(403).json({ success: false, message: "Acceso no autorizado" });
     }
 
-    if (clave !== usuario.clave) {
+    // Soporta contraseñas con bcrypt y también texto plano (legacy)
+    const claveValida = usuario.clave.startsWith("$2") 
+      ? await bcrypt.compare(clave, usuario.clave)
+      : clave === usuario.clave;
+
+    if (!claveValida) {
       return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
     }
 

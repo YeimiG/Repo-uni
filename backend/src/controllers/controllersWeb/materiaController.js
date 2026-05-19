@@ -26,7 +26,7 @@ exports.crearMateria = async (req, res) => {
     if (existe.rows.length > 0) return res.status(400).json({ success: false, message: "El código ya existe" });
 
     const result = await db.query(`
-      INSERT INTO academico.materia (codigo, nombre, descripcion, unidadesvalorativas, horasteorias, horaspracticas, tipo, activo)
+      INSERT INTO academico.materia (codigo, nombre, descripcion, unidadesvalorativas, horasteoricas, horaspracticas, tipo, activo)
       VALUES ($1, $2, $3, $4, $5, $6, $7, true) RETURNING idmateria
     `, [codigo, nombre, descripcion || null, unidadesvalorativas, horasteorias || 0, horaspracticas || 0, tipo || "OBLIGATORIA"]);
 
@@ -46,7 +46,7 @@ exports.editarMateria = async (req, res) => {
       SET nombre = COALESCE($1, nombre),
           descripcion = COALESCE($2, descripcion),
           unidadesvalorativas = COALESCE($3, unidadesvalorativas),
-          horasteorias = COALESCE($4, horasteorias),
+          horasteoricas = COALESCE($4, horasteoricas),
           horaspracticas = COALESCE($5, horaspracticas),
           tipo = COALESCE($6, tipo)
       WHERE idmateria = $7

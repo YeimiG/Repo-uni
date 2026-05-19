@@ -1,17 +1,37 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 import API from '../services/api';
 
 const NotasScreen = ({ route }) => {
-    // Soporta tanto params directos como params anidados del Tab Navigator
-    const idUsuario = route?.params?.idUsuario || route?.params?.params?.idUsuario;
+    const [idUsuario, setIdUsuario] = useState(
+        route?.params?.idUsuario || route?.params?.params?.idUsuario || null
+    );
     const [loading, setLoading] = useState(true);
     const [datos, setDatos] = useState(null);
     const [error, setError] = useState(null);
+    const isFocused = useIsFocused();
 
+    // Obtener idUsuario desde AsyncStorage si no vino por params
     useEffect(() => {
-        if (idUsuario) obtenerNotas();
-    }, [idUsuario]);
+        const resolverIdUsuario = async () => {
+            if (idUsuario) return;
+            try {
+                const raw = await AsyncStorage.getItem('usuario');
+                if (raw) {
+                    const u = JSON.parse(raw);
+                    setIdUsuario(u.idUsuario || u.idusuario);
+                }
+            } catch {}
+        };
+        resolverIdUsuario();
+    }, []);
+
+    // Recargar cuando el tab recibe foco
+    useEffect(() => {
+        if (isFocused && idUsuario) obtenerNotas();
+    }, [isFocused, idUsuario]);
 
     const obtenerNotas = async () => {
         try {

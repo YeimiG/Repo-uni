@@ -24,6 +24,15 @@ exports.soloAdmin = (req, res, next) => {
   next();
 };
 
+// Admin o Secretaria (para gestión de usuarios/estudiantes)
+exports.adminOSecretaria = (req, res, next) => {
+  const roles = ["SUPER_ADMIN", "ADMIN_ACADEMICO", "COORDINADOR", "SECRETARIA"];
+  if (!req.user || !roles.includes(req.user.rol)) {
+    return res.status(403).json({ success: false, message: "Acceso denegado" });
+  }
+  next();
+};
+
 // Solo estudiantes (móvil)
 exports.soloEstudiante = (req, res, next) => {
   if (!req.user || req.user.rol !== "ESTUDIANTE") {

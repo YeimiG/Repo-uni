@@ -91,7 +91,7 @@ exports.crearEstudiante = async (req, res) => {
     // Crear persona
     const persona = await db.query(
       `INSERT INTO personas.persona (primernombre, primerapellido, fechanacimiento, activo, fecharegistro)
-       VALUES ($1, $2, NULL, true, NOW()) RETURNING idpersona`,
+       VALUES ($1, $2, '1900-01-01', true, NOW()) RETURNING idpersona`,
       [primernombre, primerapellido]
     );
     const idpersona = persona.rows[0].idpersona;

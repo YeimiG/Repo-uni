@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { hasPermission, PERMISSIONS } from "@/utils/permissions";
+import { hasPermission, PERMISSIONS, isDocente, isAdmin } from "@/utils/permissions";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -16,6 +16,7 @@ export default function Sidebar() {
     { href: "/estudiantes",   label: "Estudiantes",       icon: "🎓", permission: PERMISSIONS.MANAGE_USERS },
     { href: "/inscripciones", label: "Inscripciones",     icon: "📋", permission: PERMISSIONS.MANAGE_SUBJECTS },
     { href: "/subjects",      label: "Materias",          icon: "📚", permission: PERMISSIONS.MANAGE_SUBJECTS },
+    { href: "/academica",     label: isDocente(user?.rol) ? "Mis Notas" : "Gestión Académica", icon: "👨🏫", permission: PERMISSIONS.MANAGE_GRADES },
     { href: "/grades",        label: "Calificaciones",    icon: "📝", permission: PERMISSIONS.MANAGE_GRADES },
     { href: "/reports",       label: "Reportes",          icon: "📈", permission: PERMISSIONS.VIEW_REPORTS },
     { href: "/periodos",      label: "Períodos",          icon: "🗓️", permission: PERMISSIONS.SYSTEM_CONFIG },

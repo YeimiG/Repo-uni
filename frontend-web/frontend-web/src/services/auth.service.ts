@@ -1,7 +1,5 @@
 /* auth service */
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+import api from "@/services/api";
 
 interface LoginResponse {
   success: boolean;
@@ -17,13 +15,7 @@ interface LoginResponse {
 }
 
 export async function login(correo: string, clave: string) {
-  const { data } = await axios.post<LoginResponse>(
-    `${API_URL}/api/auth/login`,
-    {
-      correo,
-      clave,
-    },
-  );
+  const { data } = await api.post<LoginResponse>(`/api/auth/login`, { correo, clave });
 
   if (data.success) {
     localStorage.setItem("user", JSON.stringify(data.usuario));

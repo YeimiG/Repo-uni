@@ -27,8 +27,9 @@ exports.getEstudiantesGrupo = async (req, res) => {
       SELECT 
         e.idestudiante,
         e.expediente,
-        p.primernombre || ' ' || p.segundonombre as nombre,
-        p.primerapellido || ' ' || p.segundoapellido as apellidos,
+        i.idinscripcion,
+        TRIM(p.primernombre || ' ' || COALESCE(p.segundonombre, '')) as nombre,
+        TRIM(p.primerapellido || ' ' || COALESCE(p.segundoapellido, '')) as apellidos,
         n.nota1, n.nota2, n.nota3, n.notafinal
       FROM estudiantes.estudiante e
       INNER JOIN personas.persona p ON e.idpersona = p.idpersona

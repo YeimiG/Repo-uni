@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useSearchParams } from "next/navigation";
@@ -19,12 +19,12 @@ interface StudentGrade {
   parcial4: number;
   parcial5: number;
   notafinal: number;
-  idinscripcion?: number;
+  idinscripcion: number;
 }
 
 interface Materia { idgrupo: number; nombre: string; codigomateria: string; }
 
-export default function GradesPage() {
+function GradesContent() {
   const { user, loading: authLoading } = useAuth();
   const searchParams = useSearchParams();
   const { toast, showToast, hideToast } = useToast();
@@ -234,5 +234,13 @@ export default function GradesPage() {
       </div>
       {toast.show && <Toast message={toast.message} type={toast.type} onClose={hideToast} />}
     </div>
+  );
+}
+
+export default function GradesPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 flex items-center justify-center"><div className="w-8 h-8 border-4 border-blue-400 border-t-transparent rounded-full animate-spin"></div></div>}>
+      <GradesContent />
+    </Suspense>
   );
 }

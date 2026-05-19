@@ -1,0 +1,267 @@
+[dotenv@17.2.3] injecting env (7) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
+🚀 Servidor corriendo en http://localhost:3001
+Conectado a PostgreSQL correctamente
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}
+ERROR INSCRIBIR: error: no existe la relación «academico.periodo»
+    at c:\Users\Kike\Documents\Curso\Repo-uni\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async exports.inscribir (c:\Users\Kike\Documents\Curso\Repo-uni\backend\src\controllers\controllersWeb\inscripcionController.js:60:20) {
+  length: 346,
+  severity: 'ERROR',
+  code: '42P01',
+  detail: undefined,
+  hint: undefined,
+  position: undefined,
+  internalPosition: '46',
+  internalQuery: 'SELECT p.estado                         FROM academico.Periodo p\n' +
+    '    JOIN grupos.Grupo g ON g.idPeriodo = p.idPeriodo\n' +
+    '    WHERE g.idGrupo = NEW.idGrupo',
+  where: 'función PL/pgSQL validar_periodo_activo() en la línea 5 en sentencia SQL',
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '1448',
+  routine: 'parserOpenTable'
+}

@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -10,35 +11,44 @@ import {
   View
 } from 'react-native';
 import API from '../services/api';
-// Importación desde tu carpeta de constantes
 import { Colors } from '../constants/Colors';
 
 const { width } = Dimensions.get('window');
 
 const PerfilScreen = ({ route }) => {
-  const { idUsuario } = route.params;
+  const [idUsuario, setIdUsuario] = useState(route?.params?.idUsuario || null);
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!idUsuario) return;
-
-    const obtenerDatos = async () => {
-      try {
-        setLoading(true);
-        const response = await API.get(`/perfil/${idUsuario}`);
-        if (response.data.success) {
-          setPerfil(response.data.perfil);
-        }
-      } catch (error) {
-        console.error("Error de conexión:", error);
-      } finally {
-        setLoading(false);
+    const resolver = async () => {
+      let id = idUsuario;
+      if (!id) {
+        try {
+          const raw = await AsyncStorage.getItem('usuario');
+          if (raw) {
+            const u = JSON.parse(raw);
+            id = u.idUsuario || u.idusuario;
+            setIdUsuario(id);
+          }
+        } catch {}
       }
+      if (id) obtenerDatos(id);
     };
+    resolver();
+  }, []);
 
-    obtenerDatos();
-  }, [idUsuario]);
+  const obtenerDatos = async (id) => {
+    try {
+      setLoading(true);
+      const response = await API.get(`/perfil/${id}`);
+      if (response.data.success) setPerfil(response.data.perfil);
+    } catch (error) {
+      console.error('Error de conexión:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (

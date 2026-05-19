@@ -63,6 +63,12 @@ exports.inscribir = async (req, res) => {
       [idestudiante, idgrupo]
     );
 
+    // Actualizar cupo actual del grupo
+    await db.query(
+      `UPDATE grupos.grupo SET cupoactual = cupoactual + 1 WHERE idgrupo = $1`,
+      [idgrupo]
+    );
+
     res.json({ success: true, message: "Estudiante inscrito correctamente", idinscripcion: result.rows[0].idinscripcion });
   } catch (error) {
     console.error("ERROR INSCRIBIR:", error);
@@ -75,10 +81,18 @@ exports.retirar = async (req, res) => {
   const { idinscripcion } = req.params;
   const { motivoRetiro } = req.body;
   try {
+    // Obtener idgrupo antes de retirar
+    const ins = await db.query(`SELECT idgrupo FROM inscripciones.inscripcion WHERE idinscripcion = $1`, [idinscripcion]);
+
     await db.query(
       `UPDATE inscripciones.inscripcion SET estado = 'RETIRADO', fecharetiro = NOW(), motivoretiro = $1 WHERE idinscripcion = $2`,
       [motivoRetiro || "Retiro administrativo", idinscripcion]
     );
+
+    if (ins.rows.length > 0) {
+      await db.query(`UPDATE grupos.grupo SET cupoactual = GREATEST(cupoactual - 1, 0) WHERE idgrupo = $1`, [ins.rows[0].idgrupo]);
+    }
+
     res.json({ success: true, message: "Inscripción retirada correctamente" });
   } catch (error) {
     res.status(500).json({ success: false, message: "Error al retirar inscripción" });
