@@ -1,0 +1,95 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: ieproes_db
+
+    restart: always
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: DB_UNI_II
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+      # Scripts SQL automáticos
+      - ./backend/scripts_data.sql:/docker-entrypoint-initdb.d/01_scrpts_data.sql
+      - ./backend/DB_UNI_II.sql:/docker-entrypoint-initdb.d/02_DB_UNI_II.sql
+
+    networks:
+      - ieproes_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    container_name: ieproes_backend
+
+    restart: always
+
+    depends_on:
+      - db
+
+    environment:
+      NODE_ENV: production
+
+      PORT: 3001
+
+      PG_HOST: db
+      PG_PORT: 5432
+
+      PG_USER: postgres
+      PG_PASSWORD: root
+      PG_DATABASE: DB_UNI_II
+
+    ports:
+      - "3001:3001"
+
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+
+    networks:
+      - ieproes_network
+
+  frontend:
+    build:
+      context: ./frontend-web/frontend-web
+      dockerfile: Dockerfile
+
+    container_name: ieproes_frontend
+
+    restart: always
+
+    depends_on:
+      - backend
+
+    environment:
+      NODE_ENV: production
+
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+
+    ports:
+      - "3000:3000"
+
+    volumes:
+      - ./frontend-web/frontend-web:/app
+      - /app/node_modules
+      - /app/.next
+
+    networks:
+      - ieproes_network
+
+networks:
+  ieproes_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
