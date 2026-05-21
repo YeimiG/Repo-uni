@@ -17,11 +17,10 @@ services:
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-      # Scripts SQL automáticos
-      - ./backend/scripts_data.sql:/docker-entrypoint-initdb.d/01_scrpts_data.sql
-      - ./backend/DB_UNI_II.sql:/docker-entrypoint-initdb.d/02_DB_UNI_II.sql
-
+      # 1. Primero la estructura de la base de datos
+      - ./backend/init_db.sql:/docker-entrypoint-initdb.d/01_init_db.sql
+      # 2. Luego la inserción de los datos
+      - ./backend/data.sql:/docker-entrypoint-initdb.d/02_data.sql
     networks:
       - ieproes_network
 
