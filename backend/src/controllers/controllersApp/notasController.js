@@ -1,69 +1,81 @@
 const db = require("../../config/db");
 
 exports.obtenerNotasActuales = async (req, res) => {
-    // Recibimos el idUsuario (el del login)
     const { idUsuario } = req.params;
 
     try {
-        // La consulta que validamos en pgAdmin con el filtro 'ACTIVA'
+
         const query = `
             SELECT 
                 m.nombre AS materia_nombre,
                 m.codigo AS materia_codigo,
-                m.unidadesValorativas AS uv,
-                nf.nota1, nf.nota2, nf.nota3,
-                COALESCE(nf.nota4, 0) AS nota4,
-                COALESCE(nf.nota5, 0) AS nota5,
-                nf.notaFinal AS promedio_actual,
-                nf.estado AS estado_nota,
-                ( (CASE WHEN nf.nota1 IS NOT NULL THEN 1 ELSE 0 END +
-                   CASE WHEN nf.nota2 IS NOT NULL THEN 1 ELSE 0 END +
-                   CASE WHEN nf.nota3 IS NOT NULL THEN 1 ELSE 0 END +
-                   CASE WHEN nf.nota4 IS NOT NULL THEN 1 ELSE 0 END +
-                   CASE WHEN nf.nota5 IS NOT NULL THEN 1 ELSE 0 END) * 20 ) AS porcentaje_completado
-            FROM inscripciones.Inscripcion i
-            INNER JOIN grupos.Grupo g ON i.idGrupo = g.idGrupo
-            INNER JOIN academico.Materia m ON g.idMateria = m.idMateria
-            LEFT JOIN evaluaciones.NotaFinal nf ON i.idInscripcion = nf.idInscripcion
-            WHERE i.idEstudiante = (SELECT idEstudiante FROM estudiantes.Estudiante WHERE idUsuario = $1)
-              AND i.estado ILIKE 'INSCRITO';
+                m.unidadesvalorativas AS uv,
+
+                nf.nota1,
+                nf.nota2,
+                nf.nota3,
+                nf.nota4,
+                nf.nota5,
+
+                nf.notafinal AS promedio_actual,
+                nf.estado AS estado_nota
+
+            FROM inscripciones.inscripcion i
+
+            INNER JOIN grupos.grupo g
+                ON i.idgrupo = g.idgrupo
+
+            INNER JOIN academico.materia m
+                ON g.idmateria = m.idmateria
+
+            LEFT JOIN evaluaciones.notafinal nf
+                ON i.idinscripcion = nf.idinscripcion
+
+            WHERE i.idestudiante = (
+                SELECT e.idestudiante
+                FROM estudiantes.estudiante e
+                WHERE e.idusuario = $1
+            )
+            AND i.estado = 'ACTIVA';
         `;
 
         const result = await db.query(query, [idUsuario]);
-        const notas = result.rows;
 
-        // --- LÓGICA DE CÁLCULOS PARA EL RESUMEN INFERIOR ---
+        // calcular resumen
         let totalUV = 0;
-        let sumaPonderada = 0;
+        let notaUV = 0;
 
-        notas.forEach(materia => {
-            const uv = parseInt(materia.uv || 0);
-            const nota = parseFloat(materia.promedio_actual || 0);
-            
+        result.rows.forEach(m => {
+            const uv = parseFloat(m.uv || 0);
+            const nota = parseFloat(m.promedio_actual || 0);
+
             totalUV += uv;
-            sumaPonderada += (nota * uv);
+            notaUV += (nota * uv);
         });
 
-        const cumCiclo = totalUV > 0 ? (sumaPonderada / totalUV).toFixed(2) : "0.0";
+        const cumCiclo = totalUV > 0
+            ? (notaUV / totalUV).toFixed(2)
+            : 0;
 
-        // Enviamos todo en un solo paquete
-        res.json({
+        res.status(200).json({
             success: true,
             data: {
-                notas,
+                notas: result.rows,
                 resumen: {
-                    totalUV: totalUV.toFixed(1),
-                    notaUV: sumaPonderada.toFixed(1),
-                    cumCiclo: cumCiclo
+                    totalUV: totalUV.toFixed(2),
+                    notaUV: notaUV.toFixed(2),
+                    cumCiclo
                 }
             }
         });
 
     } catch (error) {
-        console.error("Error en obtenerNotasActuales:", error);
+
+        console.error("Error obteniendo notas:", error);
+
         res.status(500).json({
             success: false,
-            message: "Error al obtener las calificaciones del ciclo."
+            message: "Error del servidor"
         });
     }
 };
