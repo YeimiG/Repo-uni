@@ -12,7 +12,7 @@ const { verificarToken } = require("../../middlewares/authMiddleware");
 router.post("/login", authMobile.loginMobile);
 
 // ── Rutas protegidas (requieren token) ───────────────────
-router.use(verificarToken);
+//router.use(verificarToken);
 
 router.get("/perfil/:idUsuario",    perfilMobile.obtenerPerfilEstudiante);
 router.get("/actuales/:idUsuario",  notasMobile.obtenerNotasActuales);
