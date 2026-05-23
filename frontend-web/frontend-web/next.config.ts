@@ -11,7 +11,8 @@ const nextConfig: NextConfig = {
   // Permite acceso desde la IP de red local (evita el warning de cross-origin)
   allowedDevOrigins: ["192.168.33.1", "localhost", "127.0.0.1"],
 
-  // Proxy: redirige /api/* al backend en 3001 — elimina problemas de CORS en dev
+  // El frontend se ejecuta en 3000 y el backend en 3001.
+  // En desarrollo, /api/* se reescribe al backend para evitar CORS y para que la web use el mismo origen.
   async rewrites() {
     return [
       {

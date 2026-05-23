@@ -1,9 +1,9 @@
-/* auth service */
+/* auth service para web sin token JWT */
 import api from "@/services/api";
 
 interface LoginResponse {
   success: boolean;
-  token: string;
+  message?: string;
   usuario: {
     idUsuario: number;
     correo: string;
@@ -15,19 +15,20 @@ interface LoginResponse {
 }
 
 export async function login(correo: string, clave: string) {
-  const { data } = await api.post<LoginResponse>(`/api/auth/login`, { correo, clave });
+  const response = await api.post<LoginResponse>(`/api/auth/login`, {
+    correo,
+    clave,
+  });
 
-  if (data.success) {
-    localStorage.setItem("user", JSON.stringify(data.usuario));
-    localStorage.setItem("token", data.token);
-    return data;
+  if (response.data.success) {
+    localStorage.setItem("user", JSON.stringify(response.data.usuario));
+    return response.data;
   }
 
-  throw new Error("Login fallido");
+  throw new Error(response.data.message || "Login fallido");
 }
 
 export function logout() {
-  localStorage.removeItem("token");
   localStorage.removeItem("user");
   window.location.href = "/login";
 }

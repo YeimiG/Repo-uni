@@ -1,5 +1,4 @@
 const db = require("../../config/db");
-const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 exports.login = async (req, res) => {
@@ -21,38 +20,53 @@ exports.login = async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Credenciales incorrectas" });
     }
 
     const usuario = result.rows[0];
 
-    const rolesWeb = ["SUPER_ADMIN", "ADMIN_ACADEMICO", "ADMIN_FINANCIERO", "COORDINADOR", "DOCENTE", "SECRETARIA"];
-    if (!rolesWeb.includes(usuario.rol)) {
-      return res.status(403).json({ success: false, message: "Acceso no autorizado" });
+    const rolesWeb = [
+      "SUPER_ADMIN",
+      "ADMIN_ACADEMICO",
+      "ADMIN_FINANCIERO",
+      "COORDINADOR",
+      "DOCENTE",
+      "SECRETARIA",
+    ];
+
+    // Normaliza el rol para evitar fallos cuando el nombre de rol en la base de datos incluye acentos.
+    const normalizedRole = String(usuario.rol || "")
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toUpperCase();
+
+    if (!rolesWeb.includes(normalizedRole)) {
+      return res
+        .status(403)
+        .json({ success: false, message: "Acceso no autorizado" });
     }
 
     // Soporta contraseñas con bcrypt y también texto plano (legacy)
-    const claveValida = usuario.clave.startsWith("$2") 
-      ? await bcrypt.compare(clave, usuario.clave)
-      : clave === usuario.clave;
+    const storedClave = typeof usuario.clave === "string" ? usuario.clave : "";
+    const claveValida = storedClave.startsWith("$2")
+      ? await bcrypt.compare(clave, storedClave)
+      : clave === storedClave;
 
     if (!claveValida) {
-      return res.status(401).json({ success: false, message: "Credenciales incorrectas" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Credenciales incorrectas" });
     }
 
-    const token = jwt.sign(
-      { idUsuario: usuario.idusuario, rol: usuario.rol },
-      process.env.JWT_SECRET,
-      { expiresIn: "8h" },
-    );
-
+    // No generamos ni devolvemos token JWT para la parte web por ahora.
     res.json({
       success: true,
-      token,
       usuario: {
         idUsuario: usuario.idusuario,
         correo: usuario.correo,
-        rol: usuario.rol,
+        rol: normalizedRole,
         nombre: usuario.nombre,
         apellidos: usuario.apellidos,
         primerLogin: false,
