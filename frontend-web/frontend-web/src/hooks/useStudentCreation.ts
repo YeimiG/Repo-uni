@@ -72,7 +72,7 @@ export function useStudentCreation(): UseStudentCreationReturn {
     setError(null);
     const res = await getPersonasDisponibles("estudiante");
     if (res.success) {
-      setPersonasDisponibles(res.data || []);
+      setPersonasDisponibles(res.data || (res as any).personas || []);
     } else {
       setError(res.message || "Error al cargar personas");
     }
@@ -106,7 +106,7 @@ export function useStudentCreation(): UseStudentCreationReturn {
         if (!res.success) {
           throw new Error(res.message || "Error al crear persona");
         }
-        const idpersona = res.data?.idpersona || res.persona?.idpersona;
+        const idpersona = res.data?.idpersona;
         if (!idpersona) {
           throw new Error("No se recibió ID de persona");
         }
@@ -155,7 +155,7 @@ export function useStudentCreation(): UseStudentCreationReturn {
       if (!res.success) {
         throw new Error(res.message || "Error al crear usuario");
       }
-      const idusuario = res.data?.idusuario || res.usuario?.idusuario;
+      const idusuario = res.data?.idusuario;
       if (!idusuario) {
         throw new Error("No se recibió ID de usuario");
       }

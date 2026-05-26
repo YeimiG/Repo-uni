@@ -19,19 +19,23 @@ exports.getPersonas = async (req, res) => {
         p.segundonombre,
         p.primerapellido,
         p.segundoapellido,
-        p.dui,
-        p.telefono,
-        p.direccion,
+        p.numerodocumento as dui,
+        COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
+        TRIM(CONCAT(
+          COALESCE(d.linea1, ''), ' ',
+          COALESCE(d.linea2, ''), ' ',
+          COALESCE(d.referencia, '')
+        )) as direccion,
         p.fechanacimiento,
         p.activo,
         (p.primernombre || ' ' || COALESCE(p.segundonombre || ' ', '') || p.primerapellido || ' ' || COALESCE(p.segundoapellido, '')) as nombre_completo,
         COUNT(DISTINCT CASE WHEN e.idestudiante IS NOT NULL THEN e.idestudiante END) as es_estudiante,
-        COUNT(DISTINCT CASE WHEN d.iddocente IS NOT NULL THEN d.iddocente END) as es_docente,
-        COUNT(DISTINCT CASE WHEN em.idempleado IS NOT NULL THEN em.idempleado END) as es_empleado
+        COUNT(DISTINCT CASE WHEN doc.iddocente IS NOT NULL THEN doc.iddocente END) as es_docente
       FROM personas.persona p
+      LEFT JOIN personas.contacto c ON p.idcontacto = c.idcontacto
+      LEFT JOIN personas.direccion d ON p.iddireccion = d.iddireccion
       LEFT JOIN estudiantes.estudiante e ON p.idpersona = e.idpersona
-      LEFT JOIN docentes.docente d ON p.idpersona = d.idpersona
-      LEFT JOIN empleados.empleado em ON p.idpersona = em.idpersona
+      LEFT JOIN docentes.docente doc ON p.idpersona = doc.idpersona
     `;
 
     const params = [];
@@ -59,7 +63,21 @@ exports.getPersonas = async (req, res) => {
     }
 
     query += `
-      GROUP BY p.idpersona
+      GROUP BY
+        p.idpersona,
+        p.primernombre,
+        p.segundonombre,
+        p.primerapellido,
+        p.segundoapellido,
+        p.numerodocumento,
+        c.telefonomovil,
+        c.telefonofijo,
+        c.telefonoalternativo,
+        d.linea1,
+        d.linea2,
+        d.referencia,
+        p.fechanacimiento,
+        p.activo
       ORDER BY p.primerapellido, p.primernombre
     `;
 
@@ -67,7 +85,7 @@ exports.getPersonas = async (req, res) => {
 
     res.json({
       success: true,
-      personas: result.rows,
+      data: result.rows,
       total: result.rows.length,
     });
   } catch (error) {
@@ -94,14 +112,20 @@ exports.getPersonaById = async (req, res) => {
         p.segundonombre,
         p.primerapellido,
         p.segundoapellido,
-        p.dui,
-        p.telefono,
-        p.direccion,
+        p.numerodocumento as dui,
+        COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
+        TRIM(CONCAT(
+          COALESCE(d.linea1, ''), ' ',
+          COALESCE(d.linea2, ''), ' ',
+          COALESCE(d.referencia, '')
+        )) as direccion,
         p.fechanacimiento,
         p.activo,
         p.fecharegistro,
         (p.primernombre || ' ' || COALESCE(p.segundonombre || ' ', '') || p.primerapellido || ' ' || COALESCE(p.segundoapellido, '')) as nombre_completo
       FROM personas.persona p
+      LEFT JOIN personas.contacto c ON p.idcontacto = c.idcontacto
+      LEFT JOIN personas.direccion d ON p.iddireccion = d.iddireccion
       WHERE p.idpersona = $1`,
       [id],
     );
@@ -151,42 +175,87 @@ exports.crearPersona = async (req, res) => {
       });
     }
 
-    // Verificar DUI único si se proporciona
+    // Verificar número de documento único si se proporciona
     if (dui) {
       const existeDUI = await db.query(
-        "SELECT idpersona FROM personas.persona WHERE dui = $1",
+        "SELECT idpersona FROM personas.persona WHERE numerodocumento = $1",
         [dui],
       );
       if (existeDUI.rows.length > 0) {
         return res.status(400).json({
           success: false,
-          message: "El DUI ya está registrado",
+          message: "El número de documento ya está registrado",
         });
       }
     }
 
-    // Crear persona
+    const fechaNacimientoFinal = fechanacimiento || "1900-01-01";
+
+    let idcontacto = null;
+    let iddireccion = null;
+
+    if (telefono) {
+      const contactResult = await db.query(
+        `INSERT INTO personas.contacto (telefonomovil, activo)
+         VALUES ($1, true)
+         RETURNING idcontacto`,
+        [telefono],
+      );
+      idcontacto = contactResult.rows[0].idcontacto;
+    }
+
+    if (direccion) {
+      const direccionResult = await db.query(
+        `INSERT INTO personas.direccion (linea1, linea2, referencia, codigoPostal, idMunicipio, activo)
+         VALUES ($1, NULL, NULL, NULL, 1, true)
+         RETURNING iddireccion`,
+        [direccion],
+      );
+      iddireccion = direccionResult.rows[0].iddireccion;
+    }
+
     const result = await db.query(
       `INSERT INTO personas.persona 
-       (primernombre, segundonombre, primerapellido, segundoapellido, dui, 
-        telefono, direccion, fechanacimiento, activo, fecharegistro)
+       (primernombre, segundonombre, primerapellido, segundoapellido, fechanacimiento, numerodocumento, iddireccion, idcontacto, activo, fecharegistro)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
-       RETURNING 
-         idpersona, primernombre, segundonombre, primerapellido, segundoapellido,
-         dui, telefono, direccion, fechanacimiento, activo, fecharegistro`,
+       RETURNING idpersona`,
       [
         primernombre,
         segundonombre || null,
         primerapellido,
         segundoapellido || null,
+        fechaNacimientoFinal,
         dui || null,
-        telefono || null,
-        direccion || null,
-        fechanacimiento || null,
+        iddireccion,
+        idcontacto,
       ],
     );
 
-    const persona = result.rows[0];
+    const personaResult = await db.query(
+      `SELECT 
+        p.idpersona,
+        p.primernombre,
+        p.segundonombre,
+        p.primerapellido,
+        p.segundoapellido,
+        p.numerodocumento as dui,
+        COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
+        TRIM(CONCAT(
+          COALESCE(d.linea1, ''), ' ',
+          COALESCE(d.linea2, ''), ' ',
+          COALESCE(d.referencia, '')
+        )) as direccion,
+        p.fechanacimiento,
+        p.activo,
+        p.fecharegistro
+      FROM personas.persona p
+      LEFT JOIN personas.contacto c ON p.idcontacto = c.idcontacto
+      LEFT JOIN personas.direccion d ON p.iddireccion = d.iddireccion
+      WHERE p.idpersona = $1`,
+      [result.rows[0].idpersona],
+    );
+
+    const persona = personaResult.rows[0];
 
     res.json({
       success: true,
@@ -233,21 +302,77 @@ exports.actualizarPersona = async (req, res) => {
       });
     }
 
-    // Verificar DUI único si se actualiza y es diferente
+    // Verificar número de documento único si se actualiza y es diferente
     if (dui) {
       const existeDUI = await db.query(
-        "SELECT idpersona FROM personas.persona WHERE dui = $1 AND idpersona != $2",
+        "SELECT idpersona FROM personas.persona WHERE numerodocumento = $1 AND idpersona != $2",
         [dui, id],
       );
       if (existeDUI.rows.length > 0) {
         return res.status(400).json({
           success: false,
-          message: "El DUI ya está registrado para otra persona",
+          message:
+            "El número de documento ya está registrado para otra persona",
         });
       }
     }
 
-    // Construir query dinámico
+    const personaActual = await db.query(
+      `SELECT idcontacto, iddireccion FROM personas.persona WHERE idpersona = $1`,
+      [id],
+    );
+    const personaRow = personaActual.rows[0];
+
+    let idcontacto = personaRow.idcontacto;
+    let iddireccion = personaRow.iddireccion;
+
+    if (telefono !== undefined) {
+      if (telefono) {
+        if (idcontacto) {
+          await db.query(
+            `UPDATE personas.contacto SET telefonomovil = $1 WHERE idcontacto = $2`,
+            [telefono, idcontacto],
+          );
+        } else {
+          const contactResult = await db.query(
+            `INSERT INTO personas.contacto (telefonomovil, activo) VALUES ($1, true) RETURNING idcontacto`,
+            [telefono],
+          );
+          idcontacto = contactResult.rows[0].idcontacto;
+        }
+      } else if (idcontacto) {
+        await db.query(
+          `UPDATE personas.contacto SET telefonomovil = NULL WHERE idcontacto = $1`,
+          [idcontacto],
+        );
+      }
+    }
+
+    if (direccion !== undefined) {
+      if (direccion) {
+        if (iddireccion) {
+          await db.query(
+            `UPDATE personas.direccion SET linea1 = $1 WHERE iddireccion = $2`,
+            [direccion, iddireccion],
+          );
+        } else {
+          const direccionResult = await db.query(
+            `INSERT INTO personas.direccion (linea1, linea2, referencia, codigoPostal, idMunicipio, activo)
+             VALUES ($1, NULL, NULL, NULL, 1, true)
+             RETURNING iddireccion`,
+            [direccion],
+          );
+          iddireccion = direccionResult.rows[0].iddireccion;
+        }
+      } else if (iddireccion) {
+        await db.query(
+          `UPDATE personas.direccion SET linea1 = NULL WHERE iddireccion = $1`,
+          [iddireccion],
+        );
+      }
+    }
+
+    // Construir query dinámico para actualizar campos de persona
     const updates = [];
     const params = [];
     let paramIndex = 1;
@@ -269,16 +394,8 @@ exports.actualizarPersona = async (req, res) => {
       params.push(segundoapellido || null);
     }
     if (dui !== undefined) {
-      updates.push(`dui = $${paramIndex++}`);
+      updates.push(`numerodocumento = $${paramIndex++}`);
       params.push(dui || null);
-    }
-    if (telefono !== undefined) {
-      updates.push(`telefono = $${paramIndex++}`);
-      params.push(telefono || null);
-    }
-    if (direccion !== undefined) {
-      updates.push(`direccion = $${paramIndex++}`);
-      params.push(direccion || null);
     }
     if (fechanacimiento !== undefined) {
       updates.push(`fechanacimiento = $${paramIndex++}`);
@@ -287,6 +404,14 @@ exports.actualizarPersona = async (req, res) => {
     if (activo !== undefined) {
       updates.push(`activo = $${paramIndex++}`);
       params.push(activo);
+    }
+    if (idcontacto !== undefined) {
+      updates.push(`idcontacto = $${paramIndex++}`);
+      params.push(idcontacto);
+    }
+    if (iddireccion !== undefined) {
+      updates.push(`iddireccion = $${paramIndex++}`);
+      params.push(iddireccion);
     }
 
     if (updates.length === 0) {
@@ -301,16 +426,39 @@ exports.actualizarPersona = async (req, res) => {
       UPDATE personas.persona
       SET ${updates.join(", ")}
       WHERE idpersona = $${paramIndex}
-      RETURNING idpersona, primernombre, segundonombre, primerapellido, segundoapellido,
-                dui, telefono, direccion, fechanacimiento, activo
+      RETURNING idpersona
     `;
 
     const result = await db.query(query, params);
+    const personaActualizada = result.rows[0];
+
+    const personaResult = await db.query(
+      `SELECT 
+        p.idpersona,
+        p.primernombre,
+        p.segundonombre,
+        p.primerapellido,
+        p.segundoapellido,
+        p.numerodocumento as dui,
+        COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
+        TRIM(CONCAT(
+          COALESCE(d.linea1, ''), ' ',
+          COALESCE(d.linea2, ''), ' ',
+          COALESCE(d.referencia, '')
+        )) as direccion,
+        p.fechanacimiento,
+        p.activo
+      FROM personas.persona p
+      LEFT JOIN personas.contacto c ON p.idcontacto = c.idcontacto
+      LEFT JOIN personas.direccion d ON p.iddireccion = d.iddireccion
+      WHERE p.idpersona = $1`,
+      [personaActualizada.idpersona],
+    );
 
     res.json({
       success: true,
       message: "Persona actualizada correctamente",
-      persona: result.rows[0],
+      persona: personaResult.rows[0],
     });
   } catch (error) {
     console.error("ERROR ACTUALIZAR PERSONA:", error);
@@ -365,7 +513,7 @@ exports.desactivarPersona = async (req, res) => {
 // ────────────────────────────────────────────────────────────
 exports.getPersonasDisponibles = async (req, res) => {
   try {
-    const { tipo } = req.query; // 'estudiante', 'docente', 'empleado'
+    const { tipo } = req.params; // 'estudiante', 'docente', 'empleado'
 
     let query = `
       SELECT 
@@ -374,10 +522,11 @@ exports.getPersonasDisponibles = async (req, res) => {
         p.segundonombre,
         p.primerapellido,
         p.segundoapellido,
-        p.dui,
-        p.telefono,
+        p.numerodocumento as dui,
+        COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
         (p.primernombre || ' ' || COALESCE(p.segundonombre || ' ', '') || p.primerapellido || ' ' || COALESCE(p.segundoapellido, '')) as nombre_completo
       FROM personas.persona p
+      LEFT JOIN personas.contacto c ON p.idcontacto = c.idcontacto
       WHERE p.activo = true
     `;
 
@@ -387,7 +536,7 @@ exports.getPersonasDisponibles = async (req, res) => {
     } else if (tipo === "docente") {
       query += ` AND NOT EXISTS (SELECT 1 FROM docentes.docente WHERE idpersona = p.idpersona)`;
     } else if (tipo === "empleado") {
-      query += ` AND NOT EXISTS (SELECT 1 FROM empleados.empleado WHERE idpersona = p.idpersona)`;
+      query += ` AND NOT EXISTS (SELECT 1 FROM seguridad.usuario WHERE idpersona = p.idpersona)`;
     }
 
     query += ` ORDER BY p.primerapellido, p.primernombre`;
@@ -396,7 +545,7 @@ exports.getPersonasDisponibles = async (req, res) => {
 
     res.json({
       success: true,
-      personas: result.rows,
+      data: result.rows,
     });
   } catch (error) {
     console.error("ERROR GET PERSONAS DISPONIBLES:", error);

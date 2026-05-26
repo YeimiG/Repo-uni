@@ -1,31 +1,92 @@
 /* sidebar ieproes */
 "use client";
 
+import { useAuth } from "@/hooks/useAuth";
+import {
+    hasPermission,
+    isDocente,
+    PERMISSIONS
+} from "@/utils/permissions";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import { hasPermission, PERMISSIONS, isDocente, isAdmin } from "@/utils/permissions";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
 
   const menuItems = [
-    { href: "/dashboard",     label: "Dashboard",        icon: "📊", permission: null },
-    { href: "/users",        label: "Usuarios",          icon: "👥", permission: PERMISSIONS.MANAGE_USERS },
-    { href: "/estudiantes",   label: "Estudiantes",       icon: "🎓", permission: PERMISSIONS.MANAGE_USERS },
-    { href: "/inscripciones", label: "Inscripciones",     icon: "📋", permission: PERMISSIONS.MANAGE_SUBJECTS },
-    { href: "/subjects",      label: "Materias",          icon: "📚", permission: PERMISSIONS.MANAGE_SUBJECTS },
-    { href: "/academica",     label: isDocente(user?.rol) ? "Mis Notas" : "Gestión Académica", icon: "👨🏫", permission: PERMISSIONS.MANAGE_GRADES },
-    { href: "/grades",        label: "Calificaciones",    icon: "📝", permission: PERMISSIONS.MANAGE_GRADES },
-    { href: "/reports",       label: "Reportes",          icon: "📈", permission: PERMISSIONS.VIEW_REPORTS },
-    { href: "/periodos",      label: "Períodos",          icon: "🗓️", permission: PERMISSIONS.SYSTEM_CONFIG },
-    { href: "/permisos",      label: "Permisos de Notas", icon: "🔐", permission: PERMISSIONS.SYSTEM_CONFIG },
-    { href: "/config",        label: "Configuración",     icon: "⚙️", permission: PERMISSIONS.SYSTEM_CONFIG },
+    { href: "/dashboard", label: "Dashboard", icon: "📊", permission: null },
+    {
+      href: "/users",
+      label: "Usuarios",
+      icon: "👥",
+      permission: PERMISSIONS.MANAGE_USERS,
+    },
+    {
+      href: "/personas",
+      label: "Personas",
+      icon: "🧑",
+      permission: PERMISSIONS.MANAGE_USERS,
+    },
+    {
+      href: "/estudiantes",
+      label: "Estudiantes",
+      icon: "🎓",
+      permission: PERMISSIONS.MANAGE_USERS,
+    },
+    {
+      href: "/inscripciones",
+      label: "Inscripciones",
+      icon: "📋",
+      permission: PERMISSIONS.MANAGE_SUBJECTS,
+    },
+    {
+      href: "/subjects",
+      label: "Materias",
+      icon: "📚",
+      permission: PERMISSIONS.MANAGE_SUBJECTS,
+    },
+    {
+      href: "/academica",
+      label: isDocente(user?.rol) ? "Mis Notas" : "Gestión Académica",
+      icon: "👨🏫",
+      permission: PERMISSIONS.MANAGE_GRADES,
+    },
+    {
+      href: "/grades",
+      label: "Calificaciones",
+      icon: "📝",
+      permission: PERMISSIONS.MANAGE_GRADES,
+    },
+    {
+      href: "/reports",
+      label: "Reportes",
+      icon: "📈",
+      permission: PERMISSIONS.VIEW_REPORTS,
+    },
+    {
+      href: "/periodos",
+      label: "Períodos",
+      icon: "🗓️",
+      permission: PERMISSIONS.SYSTEM_CONFIG,
+    },
+    {
+      href: "/permisos",
+      label: "Permisos de Notas",
+      icon: "🔐",
+      permission: PERMISSIONS.SYSTEM_CONFIG,
+    },
+    {
+      href: "/config",
+      label: "Configuración",
+      icon: "⚙️",
+      permission: PERMISSIONS.SYSTEM_CONFIG,
+    },
   ];
 
-  const visibleItems = menuItems.filter(item =>
-    item.permission === null || hasPermission(user?.rol, item.permission)
+  const visibleItems = menuItems.filter(
+    (item) =>
+      item.permission === null || hasPermission(user?.rol, item.permission),
   );
 
   return (
@@ -68,8 +129,10 @@ export default function Sidebar() {
             <div className="w-4 h-4 bg-white rounded-full"></div>
           </div>
           <div>
-            <div className="text-sm font-medium text-gray-900">{user?.nombre || 'Usuario'}</div>
-            <div className="text-xs text-gray-500">{user?.rol || ''}</div>
+            <div className="text-sm font-medium text-gray-900">
+              {user?.nombre || "Usuario"}
+            </div>
+            <div className="text-xs text-gray-500">{user?.rol || ""}</div>
           </div>
         </div>
       </div>
