@@ -7,8 +7,10 @@ import {
     actualizarPersona,
     crearPersona,
     getPersonas,
+    getTiposDocumento,
     togglePersona,
 } from "@/services/personas.service";
+import type { TipoDocumento } from "@/types";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -18,10 +20,15 @@ interface Persona {
   segundonombre?: string;
   primerapellido: string;
   segundoapellido?: string;
+  numeroDocumento?: string;
   dui?: string;
+  idTipoDocumento?: number;
+  tipoDocumento?: string;
   telefono?: string;
   direccion?: string;
   fechanacimiento?: string;
+  genero?: string;
+  estadocivil?: string;
   activo?: boolean;
 }
 
@@ -30,15 +37,19 @@ const EMPTY_FORM = {
   segundonombre: "",
   primerapellido: "",
   segundoapellido: "",
-  dui: "",
+  idTipoDocumento: 0,
+  numeroDocumento: "",
   telefono: "",
   direccion: "",
   fechanacimiento: "",
+  genero: "",
+  estadocivil: "",
 };
 
 export default function PersonasPage() {
   const { toast, showToast, hideToast } = useToast();
   const [personas, setPersonas] = useState<Persona[]>([]);
+  const [tiposDocumento, setTiposDocumento] = useState<TipoDocumento[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editando, setEditando] = useState<Persona | null>(null);
@@ -59,7 +70,17 @@ export default function PersonasPage() {
 
   useEffect(() => {
     cargarPersonas();
+    cargarTiposDocumento();
   }, []);
+
+  const cargarTiposDocumento = async () => {
+    const res = await getTiposDocumento();
+    if (res.success) {
+      setTiposDocumento(res.data || []);
+    } else {
+      showToast(res.message || "Error al cargar tipos de documento", "error");
+    }
+  };
 
   const abrirCrear = () => {
     setEditando(null);
@@ -74,10 +95,13 @@ export default function PersonasPage() {
       segundonombre: persona.segundonombre || "",
       primerapellido: persona.primerapellido || "",
       segundoapellido: persona.segundoapellido || "",
-      dui: persona.dui || "",
+      idTipoDocumento: persona.idTipoDocumento || 0,
+      numeroDocumento: persona.numeroDocumento || persona.dui || "",
       telefono: persona.telefono || "",
       direccion: persona.direccion || "",
       fechanacimiento: persona.fechanacimiento || "",
+      genero: persona.genero || "",
+      estadocivil: persona.estadocivil || "",
     });
     setShowModal(true);
   };
@@ -85,6 +109,13 @@ export default function PersonasPage() {
   const handleGuardar = async () => {
     if (!form.primernombre || !form.primerapellido) {
       showToast("Nombre y apellido son obligatorios", "error");
+      return;
+    }
+    if (!form.idTipoDocumento || !form.numeroDocumento) {
+      showToast(
+        "Tipo de documento y número de documento son obligatorios",
+        "error",
+      );
       return;
     }
     setSaving(true);
@@ -327,13 +358,15 @@ export default function PersonasPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  DUI
+                  Número de Documento
                 </label>
                 <input
                   type="text"
                   className="input-ieproes"
-                  value={form.dui}
-                  onChange={(e) => setForm({ ...form, dui: e.target.value })}
+                  value={form.numerodocumento}
+                  onChange={(e) =>
+                    setForm({ ...form, numerodocumento: e.target.value })
+                  }
                 />
               </div>
               <div>
@@ -348,6 +381,40 @@ export default function PersonasPage() {
                     setForm({ ...form, telefono: e.target.value })
                   }
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Género
+                </label>
+                <select
+                  className="input-ieproes"
+                  value={form.genero}
+                  onChange={(e) => setForm({ ...form, genero: e.target.value })}
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="M">Masculino</option>
+                  <option value="F">Femenino</option>
+                  <option value="O">Otro</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Estado Civil
+                </label>
+                <select
+                  className="input-ieproes"
+                  value={form.estadocivil}
+                  onChange={(e) =>
+                    setForm({ ...form, estadocivil: e.target.value })
+                  }
+                >
+                  <option value="">Seleccionar...</option>
+                  <option value="Soltero">Soltero/a</option>
+                  <option value="Casado">Casado/a</option>
+                  <option value="Divorciado">Divorciado/a</option>
+                  <option value="Viudo">Viudo/a</option>
+                  <option value="Union Libre">Unión Libre</option>
+                </select>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
