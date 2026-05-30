@@ -14,22 +14,17 @@ exports.getUsuarios = async (req, res) => {
     const { activo, rol, search } = req.query;
 
     let query = `
-      SELECT 
+          SELECT
         u.idusuario,
         u.correo,
-        u.activo,
         u.fechacreacion,
+        u.activo,
         r.idrol,
-        r.nombrerol as rol,
-        p.idpersona,
-        p.primernombre,
-        p.segundonombre,
-        p.primerapellido,
-        p.segundoapellido,
-        (p.primernombre || ' ' || COALESCE(p.segundonombre || ' ', '') || p.primerapellido || ' ' || COALESCE(p.segundoapellido, '')) as nombre_completo
+        r.nombrerol AS rol
       FROM seguridad.usuario u
-      INNER JOIN seguridad.rol r ON u.idrol = r.idrol
-      LEFT JOIN personas.persona p ON u.idpersona = p.idpersona
+      INNER JOIN seguridad.rol r
+        ON u.idrol = r.idrol
+     
     `;
 
     const params = [];
@@ -47,14 +42,12 @@ exports.getUsuarios = async (req, res) => {
     }
 
     if (search) {
-      conditions.push(`(
-        u.correo ILIKE $${paramIndex} OR
-        p.primernombre ILIKE $${paramIndex} OR
-        p.primerapellido ILIKE $${paramIndex}
-      )`);
-      params.push(`%${search}%`);
-      paramIndex++;
-    }
+  conditions.push(`
+    u.correo ILIKE $${paramIndex}
+  `);
+  params.push(`%${search}%`);
+  paramIndex++;
+}
 
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
@@ -87,21 +80,20 @@ exports.getUsuarioById = async (req, res) => {
     const { id } = req.params;
 
     const result = await db.query(
-      `SELECT 
+      `
+      SELECT
         u.idusuario,
         u.correo,
-        u.activo,
         u.fechacreacion,
-        u.idpersona,
+        u.activo,
         r.idrol,
-        r.nombrerol as rol,
-        p.primernombre,
-        p.primerapellido
+        r.nombrerol AS rol
       FROM seguridad.usuario u
-      INNER JOIN seguridad.rol r ON u.idrol = r.idrol
-      LEFT JOIN personas.persona p ON u.idpersona = p.idpersona
-      WHERE u.idusuario = $1`,
-      [id],
+      INNER JOIN seguridad.rol r
+        ON u.idrol = r.idrol
+      WHERE u.idusuario = $1
+      `,
+      [id]
     );
 
     if (result.rows.length === 0) {
@@ -117,6 +109,7 @@ exports.getUsuarioById = async (req, res) => {
     });
   } catch (error) {
     console.error("ERROR GET USUARIO BY ID:", error);
+
     res.status(500).json({
       success: false,
       message: "Error al obtener usuario",
@@ -183,13 +176,37 @@ exports.crearUsuario = async (req, res) => {
     const claveHash = await bcrypt.hash(clave, salt);
 
     // Crear usuario
-    const result = await db.query(
-      `INSERT INTO seguridad.usuario 
-       (correo, clave, idrol, idpersona, activo, fechacreacion)
-       VALUES ($1, $2, $3, $4, true, NOW())
-       RETURNING idusuario, correo, idrol, idpersona, activo, fechacreacion`,
-      [correo.toLowerCase(), claveHash, idrol, idpersona || null],
-    );
+  const result = await db.query(
+  `
+  INSERT INTO seguridad.usuario
+  (
+    correo,
+    clave,
+    idrol,
+    activo,
+    fechacreacion
+  )
+  VALUES
+  (
+    $1,
+    $2,
+    $3,
+    true,
+    NOW()
+  )
+  RETURNING
+    idusuario,
+    correo,
+    idrol,
+    activo,
+    fechacreacion
+  `,
+  [
+    correo.toLowerCase(),
+    claveHash,
+    idrol
+  ]
+);
 
     const usuario = result.rows[0];
 

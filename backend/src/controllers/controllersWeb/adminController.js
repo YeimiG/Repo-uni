@@ -5,25 +5,16 @@ const bcrypt = require("bcryptjs");
 exports.getUsuarios = async (req, res) => {
   try {
     const query = `
-      SELECT 
+      SELECT
         u.idusuario,
         u.correo,
+        u.fechacreacion,
         u.activo,
-        r.nombrerol as rol,
-        COALESCE(
-          p_d.primernombre || ' ' || p_d.primerapellido,
-          p_e.primernombre || ' ' || p_e.primerapellido,
-          p_u.primernombre || ' ' || p_u.primerapellido,
-          u.correo
-        ) as nombre
+        r.nombrerol AS rol
       FROM seguridad.usuario u
-      INNER JOIN seguridad.rol r ON u.idrol = r.idrol
-      LEFT JOIN docentes.docente d ON u.idusuario = d.idusuario
-      LEFT JOIN personas.persona p_d ON d.idpersona = p_d.idpersona
-      LEFT JOIN estudiantes.estudiante e ON u.idusuario = e.idusuario
-      LEFT JOIN personas.persona p_e ON e.idpersona = p_e.idpersona
-      LEFT JOIN personas.persona p_u ON u.idpersona = p_u.idpersona
-      ORDER BY r.nombrerol, u.correo
+      INNER JOIN seguridad.rol r
+        ON u.idrol = r.idrol
+      ORDER BY u.correo
     `;
 
     const result = await db.query(query);
@@ -31,12 +22,15 @@ exports.getUsuarios = async (req, res) => {
     res.json({
       success: true,
       usuarios: result.rows,
+      total: result.rows.length,
     });
   } catch (error) {
     console.error("ERROR GET USUARIOS:", error);
+
     res.status(500).json({
       success: false,
       message: "Error al obtener usuarios",
+      error: error.message,
     });
   }
 };

@@ -5,11 +5,11 @@ import Toast from "@/components/Toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/useToast";
 import {
-    crearUsuario,
-    editarUsuario,
-    getRoles,
-    getUsuarios,
-    toggleUsuario,
+  crearUsuario,
+  editarUsuario,
+  getRoles,
+  getUsuarios,
+  toggleUsuario,
 } from "@/services/admin.service";
 import { getPersonasDisponibles } from "@/services/personas.service";
 import type { PersonaResponse } from "@/types";
@@ -22,8 +22,8 @@ interface Usuario {
   idusuario: number;
   correo: string;
   rol: string;
-  nombre: string;
-  activo?: boolean;
+  fechacreacion: string;
+  activo: boolean;
 }
 
 interface Rol {
@@ -96,11 +96,9 @@ export default function UsersPage() {
 
   const filteredUsuarios = usuarios.filter(
     (u) =>
-      u.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.correo.toLowerCase().includes(searchTerm.toLowerCase()) ||
       u.rol.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-
   function abrirCrear() {
     setEditando(null);
     setForm(FORM_EMPTY);
@@ -111,14 +109,15 @@ export default function UsersPage() {
 
   function abrirEditar(u: Usuario) {
     setEditando(u);
-    const [primernombre = "", primerapellido = ""] = u.nombre.split(" ");
+
     setForm({
       correo: u.correo,
       clave: "",
       idrol: 0,
-      primernombre,
-      primerapellido,
+      primernombre: "",
+      primerapellido: "",
     });
+
     setShowModal(true);
   }
 
@@ -176,7 +175,7 @@ export default function UsersPage() {
 
   async function handleToggle(u: Usuario) {
     const accion = u.activo === false ? "activar" : "desactivar";
-    if (!confirm(`¿${accion} al usuario ${u.nombre}?`)) return;
+    if (!confirm(`¿${accion} al usuario ${u.correo}?`)) return;
     const res = await toggleUsuario(u.idusuario);
     if (res.success) {
       showToast(res.message, "success");
@@ -261,55 +260,65 @@ export default function UsersPage() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                        Nombre
+                        ID Usuario
                       </th>
+
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         Correo
                       </th>
+
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Fecha Creación
+                      </th>
+
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         Rol
                       </th>
+
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
                         Estado
-                      </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                        Acciones
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredUsuarios.map((u) => (
                       <tr key={u.idusuario} className="hover:bg-gray-50">
+
                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                          {u.nombre}
+                          {u.idusuario}
                         </td>
+
                         <td className="px-6 py-4 text-sm text-gray-500">
                           {u.correo}
                         </td>
+
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {new Date(u.fechacreacion).toLocaleDateString()}
+                        </td>
+
                         <td className="px-6 py-4">
                           <span
-                            className={`badge-${
-                              u.rol === "SUPER_ADMIN" ||
-                              u.rol === "ADMIN_ACADEMICO"
+                            className={`badge-${u.rol === "SUPER_ADMIN" ||
+                                u.rol === "ADMIN_ACADEMICO"
                                 ? "warning"
                                 : u.rol === "DOCENTE"
                                   ? "success"
-                                  : u.rol === "SECRETARIA" ||
-                                      u.rol === "COORDINADOR"
-                                    ? "info"
-                                    : "info"
-                            }`}
+                                  : "info"
+                              }`}
                           >
                             {u.rol}
                           </span>
                         </td>
+
                         <td className="px-6 py-4">
                           <span
-                            className={`badge-${u.activo === false ? "error" : "success"}`}
+                            className={`badge-${u.activo ? "success" : "error"
+                              }`}
                           >
-                            {u.activo === false ? "Inactivo" : "Activo"}
+                            {u.activo ? "Activo" : "Inactivo"}
                           </span>
                         </td>
+
                         <td className="px-6 py-4 text-center space-x-2">
                           <button
                             onClick={() => abrirEditar(u)}
@@ -317,15 +326,20 @@ export default function UsersPage() {
                           >
                             ✏️ Editar
                           </button>
+
                           <button
                             onClick={() => handleToggle(u)}
-                            className={`text-xs px-3 py-1 rounded ${u.activo === false ? "btn-ieproes" : "btn-outline"}`}
+                            className={`text-xs px-3 py-1 rounded ${u.activo
+                                ? "btn-outline"
+                                : "btn-ieproes"
+                              }`}
                           >
-                            {u.activo === false
-                              ? "✅ Activar"
-                              : "🚫 Desactivar"}
+                            {u.activo
+                              ? "🚫 Desactivar"
+                              : "✅ Activar"}
                           </button>
                         </td>
+
                       </tr>
                     ))}
                   </tbody>
