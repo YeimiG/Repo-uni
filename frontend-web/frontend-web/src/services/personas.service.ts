@@ -8,8 +8,28 @@ import type {
     ApiResponse,
     Persona,
     PersonaResponse,
+    TipoDocumento,
 } from "@/types";
 import api from "./api";
+
+// ───────────────────────────────────────────────────────────
+// GET - Obtener tipos de documento de identidad
+export async function getTiposDocumento(): Promise<
+  ApiListResponse<TipoDocumento>
+> {
+  try {
+    const { data } = await api.get(`/api/personas/tipos-documento`);
+    return data;
+  } catch (error: any) {
+    console.error("Error al obtener tipos de documento:", error);
+    return {
+      success: false,
+      message:
+        error.response?.data?.message || "Error al obtener tipos de documento",
+      data: [],
+    };
+  }
+}
 
 // ────────────────────────────────────────────────────────────
 // GET - Obtener todas las personas

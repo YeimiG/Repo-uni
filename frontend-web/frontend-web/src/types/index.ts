@@ -25,6 +25,9 @@ export interface Persona {
   primerapellido: string;
   segundoapellido?: string;
   dui?: string;
+  numeroDocumento?: string;
+  idTipoDocumento?: number;
+  tipoDocumento?: string;
   telefono?: string;
   direccion?: string;
   fechanacimiento?: string;
@@ -38,9 +41,20 @@ export interface PersonaResponse {
   primerapellido: string;
   segundoapellido?: string;
   dui?: string;
+  numeroDocumento?: string;
+  idTipoDocumento?: number;
+  tipoDocumento?: string;
   telefono?: string;
   direccion?: string;
   nombre_completo?: string;
+}
+
+export interface TipoDocumento {
+  idTipoDocumento: number;
+  nombre: string;
+  abreviatura?: string;
+  paisOrigen?: string;
+  activo?: boolean;
 }
 
 /* ==================== USUARIOS ==================== */

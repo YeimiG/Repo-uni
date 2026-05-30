@@ -20,6 +20,8 @@ exports.getPersonas = async (req, res) => {
         p.primerapellido,
         p.segundoapellido,
         p.numerodocumento as dui,
+        p.genero,
+        p.estadocivil,
         COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
         TRIM(CONCAT(
           COALESCE(d.linea1, ''), ' ',
@@ -49,10 +51,10 @@ exports.getPersonas = async (req, res) => {
 
     if (search) {
       conditions.push(`(
-        p.primernombre ILIKE $${paramIndex} OR
-        p.primerapellido ILIKE $${paramIndex} OR
-        p.dui ILIKE $${paramIndex} OR
-        p.telefono ILIKE $${paramIndex}
+        p.primernombre ILIKE ${paramIndex} OR
+        p.primerapellido ILIKE ${paramIndex} OR
+        p.dui ILIKE ${paramIndex} OR
+        p.telefono ILIKE ${paramIndex}
       )`);
       params.push(`%${search}%`);
       paramIndex++;
@@ -113,6 +115,8 @@ exports.getPersonaById = async (req, res) => {
         p.primerapellido,
         p.segundoapellido,
         p.numerodocumento as dui,
+        p.genero,
+        p.estadocivil,
         COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
         TRIM(CONCAT(
           COALESCE(d.linea1, ''), ' ',
@@ -120,6 +124,8 @@ exports.getPersonaById = async (req, res) => {
           COALESCE(d.referencia, '')
         )) as direccion,
         p.fechanacimiento,
+        p.genero,
+        p.estadocivil,
         p.activo,
         p.fecharegistro,
         (p.primernombre || ' ' || COALESCE(p.segundonombre || ' ', '') || p.primerapellido || ' ' || COALESCE(p.segundoapellido, '')) as nombre_completo
@@ -165,15 +171,9 @@ exports.crearPersona = async (req, res) => {
       telefono,
       direccion,
       fechanacimiento,
+      genero,
+      estadocivil,
     } = req.body;
-
-    // Validar campos obligatorios
-    if (!primernombre || !primerapellido) {
-      return res.status(400).json({
-        success: false,
-        message: "Nombre y apellido son obligatorios",
-      });
-    }
 
     // Verificar número de documento único si se proporciona
     if (dui) {
@@ -216,8 +216,8 @@ exports.crearPersona = async (req, res) => {
 
     const result = await db.query(
       `INSERT INTO personas.persona 
-       (primernombre, segundonombre, primerapellido, segundoapellido, fechanacimiento, numerodocumento, iddireccion, idcontacto, activo, fecharegistro)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true, NOW())
+       (primernombre, segundonombre, primerapellido, segundoapellido, fechanacimiento, genero, estadocivil, numerodocumento, iddireccion, idcontacto, activo, fecharegistro)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, true, NOW())
        RETURNING idpersona`,
       [
         primernombre,
@@ -225,6 +225,8 @@ exports.crearPersona = async (req, res) => {
         primerapellido,
         segundoapellido || null,
         fechaNacimientoFinal,
+        genero || null,
+        estadocivil || null,
         dui || null,
         iddireccion,
         idcontacto,
@@ -239,6 +241,8 @@ exports.crearPersona = async (req, res) => {
         p.primerapellido,
         p.segundoapellido,
         p.numerodocumento as dui,
+        p.genero,
+        p.estadocivil,
         COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
         TRIM(CONCAT(
           COALESCE(d.linea1, ''), ' ',
@@ -287,6 +291,8 @@ exports.actualizarPersona = async (req, res) => {
       telefono,
       direccion,
       fechanacimiento,
+      genero,
+      estadocivil,
       activo,
     } = req.body;
 
@@ -401,6 +407,14 @@ exports.actualizarPersona = async (req, res) => {
       updates.push(`fechanacimiento = $${paramIndex++}`);
       params.push(fechanacimiento || null);
     }
+    if (genero !== undefined) {
+      updates.push(`genero = $${paramIndex++}`);
+      params.push(genero || null);
+    }
+    if (estadocivil !== undefined) {
+      updates.push(`estadocivil = $${paramIndex++}`);
+      params.push(estadocivil || null);
+    }
     if (activo !== undefined) {
       updates.push(`activo = $${paramIndex++}`);
       params.push(activo);
@@ -425,7 +439,7 @@ exports.actualizarPersona = async (req, res) => {
     const query = `
       UPDATE personas.persona
       SET ${updates.join(", ")}
-      WHERE idpersona = $${paramIndex}
+      WHERE idpersona = ${paramIndex}
       RETURNING idpersona
     `;
 
@@ -440,6 +454,8 @@ exports.actualizarPersona = async (req, res) => {
         p.primerapellido,
         p.segundoapellido,
         p.numerodocumento as dui,
+        p.genero,
+        p.estadocivil,
         COALESCE(c.telefonomovil, c.telefonofijo, c.telefonoalternativo, '') as telefono,
         TRIM(CONCAT(
           COALESCE(d.linea1, ''), ' ',
@@ -503,6 +519,32 @@ exports.desactivarPersona = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error al cambiar estado de persona",
+      error: error.message,
+    });
+  }
+};
+
+// ────────────────────────────────────────────────────────────
+// GET - Tipos de documento de identidad
+// ────────────────────────────────────────────────────────────
+exports.getTiposDocumento = async (req, res) => {
+  try {
+    const result = await db.query(
+      `SELECT idTipoDocumento, nombre, abreviatura, paisOrigen, activo
+       FROM personas.TipoDocumentoIdentidad
+       WHERE activo = true
+       ORDER BY nombre`,
+    );
+
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } catch (error) {
+    console.error("ERROR GET TIPOS DOCUMENTO:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error al obtener los tipos de documento",
       error: error.message,
     });
   }

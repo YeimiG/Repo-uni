@@ -12,6 +12,7 @@ router.get("/", personaController.getPersonas);
 
 // GET - Obtener personas disponibles para asignar
 router.get("/disponibles/:tipo", personaController.getPersonasDisponibles);
+router.get("/tipos-documento", personaController.getTiposDocumento);
 
 // GET - Obtener persona por ID
 router.get("/:id", personaController.getPersonaById);
