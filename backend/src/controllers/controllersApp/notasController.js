@@ -1,11 +1,10 @@
 const db = require("../../config/db");
 
 exports.obtenerNotasActuales = async (req, res) => {
-    const { idUsuario } = req.params;
+  const { idUsuario } = req.params;
 
-    try {
-
-        const query = `
+  try {
+    const query = `
             SELECT 
                 m.nombre AS materia_nombre,
                 m.codigo AS materia_codigo,
@@ -36,46 +35,42 @@ exports.obtenerNotasActuales = async (req, res) => {
                 FROM estudiantes.estudiante e
                 WHERE e.idusuario = $1
             )
-            AND i.estado = 'ACTIVA';
+            AND i.estado = 'INSCRITO';
         `;
 
-        const result = await db.query(query, [idUsuario]);
+    const result = await db.query(query, [idUsuario]);
 
-        // calcular resumen
-        let totalUV = 0;
-        let notaUV = 0;
+    // calcular resumen
+    let totalUV = 0;
+    let notaUV = 0;
 
-        result.rows.forEach(m => {
-            const uv = parseFloat(m.uv || 0);
-            const nota = parseFloat(m.promedio_actual || 0);
+    result.rows.forEach((m) => {
+      const uv = parseFloat(m.uv || 0);
+      const nota = parseFloat(m.promedio_actual || 0);
 
-            totalUV += uv;
-            notaUV += (nota * uv);
-        });
+      totalUV += uv;
+      notaUV += nota * uv;
+    });
 
-        const cumCiclo = totalUV > 0
-            ? (notaUV / totalUV).toFixed(2)
-            : 0;
+    const cumCiclo = totalUV > 0 ? (notaUV / totalUV).toFixed(2) : 0;
 
-        res.status(200).json({
-            success: true,
-            data: {
-                notas: result.rows,
-                resumen: {
-                    totalUV: totalUV.toFixed(2),
-                    notaUV: notaUV.toFixed(2),
-                    cumCiclo
-                }
-            }
-        });
+    res.status(200).json({
+      success: true,
+      data: {
+        notas: result.rows,
+        resumen: {
+          totalUV: totalUV.toFixed(2),
+          notaUV: notaUV.toFixed(2),
+          cumCiclo,
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error obteniendo notas:", error);
 
-    } catch (error) {
-
-        console.error("Error obteniendo notas:", error);
-
-        res.status(500).json({
-            success: false,
-            message: "Error del servidor"
-        });
-    }
+    res.status(500).json({
+      success: false,
+      message: "Error del servidor",
+    });
+  }
 };

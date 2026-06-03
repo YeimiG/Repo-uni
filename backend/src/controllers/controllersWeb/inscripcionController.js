@@ -7,10 +7,17 @@ exports.getInscripciones = async (req, res) => {
     let where = "WHERE 1=1";
     const params = [];
     let idx = 1;
-    if (idgrupo)   { where += ` AND i.idgrupo = $${idx++}`;   params.push(idgrupo); }
-    if (idperiodo) { where += ` AND g.idperiodo = $${idx++}`; params.push(idperiodo); }
+    if (idgrupo) {
+      where += ` AND i.idgrupo = $${idx++}`;
+      params.push(idgrupo);
+    }
+    if (idperiodo) {
+      where += ` AND g.idperiodo = $${idx++}`;
+      params.push(idperiodo);
+    }
 
-    const result = await db.query(`
+    const result = await db.query(
+      `
       SELECT
         i.idinscripcion, i.estado, i.fechainscripcion,
         e.idestudiante, e.expediente,
@@ -29,12 +36,16 @@ exports.getInscripciones = async (req, res) => {
       LEFT JOIN evaluaciones.notafinal nf ON i.idinscripcion = nf.idinscripcion
       ${where}
       ORDER BY per.año DESC, per.numeroperiodo DESC, p.primerapellido
-    `, params);
+    `,
+      params,
+    );
 
     res.json({ success: true, inscripciones: result.rows });
   } catch (error) {
     console.error("ERROR GET INSCRIPCIONES:", error);
-    res.status(500).json({ success: false, message: "Error al obtener inscripciones" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error al obtener inscripciones" });
   }
 };
 
@@ -45,31 +56,58 @@ exports.inscribir = async (req, res) => {
     // Verificar que no esté ya inscrito
     const existe = await db.query(
       `SELECT idinscripcion FROM inscripciones.inscripcion WHERE idestudiante = $1 AND idgrupo = $2`,
-      [idestudiante, idgrupo]
+      [idestudiante, idgrupo],
     );
-    if (existe.rows.length > 0) return res.status(400).json({ success: false, message: "El estudiante ya está inscrito en este grupo" });
+    if (existe.rows.length > 0)
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "El estudiante ya está inscrito en este grupo",
+        });
 
-    // Verificar cupo (cupoActual vs cupoMaximo)
+    // Verificar cupo (cupoActual vs cupoMaximo) y que la materia esté activa
     const grupo = await db.query(
-      `SELECT cupoactual, cupomaximo FROM grupos.grupo WHERE idgrupo = $1`, [idgrupo]
+      `SELECT g.cupoactual, g.cupomaximo, m.activo
+       FROM grupos.grupo g
+       INNER JOIN academico.materia m ON g.idmateria = m.idmateria
+       WHERE g.idgrupo = $1`,
+      [idgrupo],
     );
-    if (grupo.rows.length === 0) return res.status(404).json({ success: false, message: "Grupo no encontrado" });
-    const { cupoactual, cupomaximo } = grupo.rows[0];
-    if (cupoactual >= cupomaximo) return res.status(400).json({ success: false, message: "El grupo no tiene cupo disponible" });
+    if (grupo.rows.length === 0)
+      return res
+        .status(404)
+        .json({ success: false, message: "Grupo no encontrado" });
+
+    const { cupoactual, cupomaximo, activo } = grupo.rows[0];
+    if (!activo)
+      return res.status(400).json({
+        success: false,
+        message: "No se puede inscribir en una materia inactiva",
+      });
+    if (cupoactual >= cupomaximo)
+      return res.status(400).json({
+        success: false,
+        message: "El grupo no tiene cupo disponible",
+      });
 
     const result = await db.query(
       `INSERT INTO inscripciones.inscripcion (idestudiante, idgrupo, estado, fechainscripcion)
        VALUES ($1, $2, 'INSCRITO', NOW()) RETURNING idinscripcion`,
-      [idestudiante, idgrupo]
+      [idestudiante, idgrupo],
     );
 
     // Actualizar cupo actual del grupo
     await db.query(
       `UPDATE grupos.grupo SET cupoactual = cupoactual + 1 WHERE idgrupo = $1`,
-      [idgrupo]
+      [idgrupo],
     );
 
-    res.json({ success: true, message: "Estudiante inscrito correctamente", idinscripcion: result.rows[0].idinscripcion });
+    res.json({
+      success: true,
+      message: "Estudiante inscrito correctamente",
+      idinscripcion: result.rows[0].idinscripcion,
+    });
   } catch (error) {
     console.error("ERROR INSCRIBIR:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -82,20 +120,28 @@ exports.retirar = async (req, res) => {
   const { motivoRetiro } = req.body;
   try {
     // Obtener idgrupo antes de retirar
-    const ins = await db.query(`SELECT idgrupo FROM inscripciones.inscripcion WHERE idinscripcion = $1`, [idinscripcion]);
+    const ins = await db.query(
+      `SELECT idgrupo FROM inscripciones.inscripcion WHERE idinscripcion = $1`,
+      [idinscripcion],
+    );
 
     await db.query(
       `UPDATE inscripciones.inscripcion SET estado = 'RETIRADO', fecharetiro = NOW(), motivoretiro = $1 WHERE idinscripcion = $2`,
-      [motivoRetiro || "Retiro administrativo", idinscripcion]
+      [motivoRetiro || "Retiro administrativo", idinscripcion],
     );
 
     if (ins.rows.length > 0) {
-      await db.query(`UPDATE grupos.grupo SET cupoactual = GREATEST(cupoactual - 1, 0) WHERE idgrupo = $1`, [ins.rows[0].idgrupo]);
+      await db.query(
+        `UPDATE grupos.grupo SET cupoactual = GREATEST(cupoactual - 1, 0) WHERE idgrupo = $1`,
+        [ins.rows[0].idgrupo],
+      );
     }
 
     res.json({ success: true, message: "Inscripción retirada correctamente" });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error al retirar inscripción" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error al retirar inscripción" });
   }
 };
 
@@ -114,12 +160,15 @@ exports.getGruposParaInscribir = async (req, res) => {
       LEFT JOIN docentes.docente d ON g.iddocente = d.iddocente
       LEFT JOIN personas.persona pd ON d.idpersona = pd.idpersona
       WHERE per.activo = true
+        AND m.activo = true
         AND g.cupoactual < g.cupomaximo
         AND g.estado = 'ACTIVO'
       ORDER BY m.nombre, g.numerogrupo
     `);
     res.json({ success: true, grupos: result.rows });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error al obtener grupos" });
+    res
+      .status(500)
+      .json({ success: false, message: "Error al obtener grupos" });
   }
 };
