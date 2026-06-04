@@ -10,12 +10,17 @@ import {
   Text,
   View
 } from 'react-native';
-import API from '../services/api';
 import { Colors } from '../constants/Colors';
+import API from '../services/api';
+// 1. Importamos el hook de nuestro contexto global
+import { useTheme } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const PerfilScreen = ({ route }) => {
+  // Consumimos el estado y los colores dinámicos del Contexto
+  const { isDarkMode, colors } = useTheme();
+
   const [idUsuario, setIdUsuario] = useState(route?.params?.idUsuario || null);
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -50,30 +55,37 @@ const PerfilScreen = ({ route }) => {
     }
   };
 
+  // Pantalla de carga con fondo dinámico e indicador adaptable
   if (loading) {
     return (
-      <View style={styles.center}>
-        <ActivityIndicator size="large" color={Colors.primaryBlue} />
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={isDarkMode ? '#81b0ff' : Colors.primaryBlue} />
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={Colors.primaryBlue} />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* El StatusBar cambia de estilo para contrastar con el fondo curvo */}
+      <StatusBar 
+        barStyle={isDarkMode ? "light-content" : "dark-content"} 
+        backgroundColor={isDarkMode ? colors.background : Colors.primaryBlue} 
+      />
 
-      {/* Fondo curvo superior */}
-      <View style={[styles.upperDecoration, { backgroundColor: Colors.primaryBlue }]} />
+      {/* Fondo curvo superior: Se oculta o cambia a un tono oscuro uniforme de noche */}
+      <View style={[styles.upperDecoration, { backgroundColor: isDarkMode ? colors.card : Colors.primaryBlue }]} />
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>MI PERFIL</Text>
+          <Text style={[styles.headerTitle, { color: isDarkMode ? colors.text : Colors.black }]}>MI PERFIL</Text>
         </View>
 
-        <View style={styles.card}>
-          {/* Avatar con Iniciales */}
-          <View style={[styles.avatarCircle, { backgroundColor: Colors.lightBlue }]}>
-            <Text style={[styles.avatarText, { color: Colors.black }]}>
+        {/* TARJETA PRINCIPAL */}
+        <View style={[styles.card, { backgroundColor: colors.card, shadowColor: isDarkMode ? '#000' : '#000' }]}>
+          
+          {/* Avatar con Iniciales (Borde dinámico para que no corte la tarjeta) */}
+          <View style={[styles.avatarCircle, { backgroundColor: isDarkMode ? '#2d3748' : Colors.lightBlue, borderColor: colors.card }]}>
+            <Text style={[styles.avatarText, { color: colors.text }]}>
               {perfil?.nombre?.charAt(0)}{perfil?.apellidos?.charAt(0)}
             </Text>
           </View>
@@ -82,9 +94,9 @@ const PerfilScreen = ({ route }) => {
 
             {/* NOMBRE COMPLETO */}
             <View style={styles.dataGroup}>
-              <Text style={styles.label}>NOMBRE COMPLETO:</Text>
-              <View style={[styles.valueContainer, { backgroundColor: Colors.lightBlue }]}>
-                <Text style={styles.valueText}>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>NOMBRE COMPLETO:</Text>
+              <View style={[styles.valueContainer, { backgroundColor: isDarkMode ? '#2d3748' : Colors.lightBlue }]}>
+                <Text style={[styles.valueText, { color: colors.text }]}>
                   {`${perfil?.nombre} ${perfil?.apellidos}`.toUpperCase()}
                 </Text>
               </View>
@@ -92,54 +104,52 @@ const PerfilScreen = ({ route }) => {
 
             {/* N° EXPEDIENTE */}
             <View style={styles.dataGroup}>
-              <Text style={styles.label}>N° EXPEDIENTE:</Text>
-              <View style={[styles.valueContainer, { backgroundColor: Colors.lightBlue }]}>
-                <Text style={styles.valueText}>{perfil?.expediente || 'S/N'}</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>N° EXPEDIENTE:</Text>
+              <View style={[styles.valueContainer, { backgroundColor: isDarkMode ? '#2d3748' : Colors.lightBlue }]}>
+                <Text style={[styles.valueText, { color: colors.text }]}>{perfil?.expediente || 'S/N'}</Text>
               </View>
             </View>
 
             {/* CARRERA */}
             <View style={styles.dataGroup}>
-              <Text style={styles.label}>CARRERA:</Text>
-              <View style={[styles.valueContainer, { backgroundColor: Colors.lightBlue }]}>
-                <Text style={styles.valueText}>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>CARRERA:</Text>
+              <View style={[styles.valueContainer, { backgroundColor: isDarkMode ? '#2d3748' : Colors.lightBlue }]}>
+                <Text style={[styles.valueText, { color: colors.text }]}>
                   {perfil?.nombreCarrera || perfil?.nombrecarrera || 'No especificada'}
                 </Text>
               </View>
             </View>
 
-         
-
             {/* CUM Y PROGRESO (Dos columnas) */}
             <View style={styles.row}>
               <View style={[styles.dataGroup, { flex: 1, marginRight: 10 }]}>
-                <Text style={styles.label}>CUM:</Text>
-                <View style={[styles.valueContainer, { backgroundColor: '#FFF9C4' }]}>
-                  <Text style={[styles.valueText, { color: '#FBC02D' }]}>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>CUM:</Text>
+                <View style={[styles.valueContainer, { backgroundColor: isDarkMode ? '#3e3214' : '#FFF9C4' }]}>
+                  <Text style={[styles.valueText, { color: isDarkMode ? '#ffd54f' : '#FBC02D' }]}>
                     {perfil?.cum || '0.00'}
                   </Text>
                 </View>
               </View>
 
               <View style={[styles.dataGroup, { flex: 1 }]}>
-                <Text style={styles.label}>AVANCE:</Text>
-                <View style={[styles.valueContainer, { backgroundColor: Colors.lightBlue }]}>
-                  <Text style={styles.valueText}>{perfil?.porcentajeAvance || 0}%</Text>
+                <Text style={[styles.label, { color: colors.textSecondary }]}>AVANCE:</Text>
+                <View style={[styles.valueContainer, { backgroundColor: isDarkMode ? '#2d3748' : Colors.lightBlue }]}>
+                  <Text style={[styles.valueText, { color: colors.text }]}>{perfil?.porcentajeAvance || 0}%</Text>
                 </View>
               </View>
             </View>
 
             {/* BARRA DE PROGRESO VISUAL */}
-            <View style={styles.progressContainer}>
-              <View style={[styles.progressBar, { width: `${perfil?.porcentajeAvance || 0}%`, backgroundColor: Colors.primaryBlue }]} />
+            <View style={[styles.progressContainer, { backgroundColor: isDarkMode ? '#333' : '#E0E0E0' }]}>
+              <View style={[styles.progressBar, { width: `${perfil?.porcentajeAvance || 0}%`, backgroundColor: isDarkMode ? '#81b0ff' : Colors.primaryBlue }]} />
             </View>
 
             {/* ESTADO ACADÉMICO */}
             <View style={styles.dataGroup}>
-              <Text style={styles.label}>ESTADO:</Text>
-              <View style={[styles.statusBadge, { borderColor: Colors.primaryBlue }]}>
-                <View style={[styles.dot, { backgroundColor: Colors.primaryBlue }]} />
-                <Text style={styles.statusText}>{perfil?.estadoAcademico || 'ACTIVO'}</Text>
+              <Text style={[styles.label, { color: colors.textSecondary }]}>ESTADO:</Text>
+              <View style={[styles.statusBadge, { borderColor: isDarkMode ? '#81b0ff' : Colors.primaryBlue }]}>
+                <View style={[styles.dot, { backgroundColor: isDarkMode ? '#81b0ff' : Colors.primaryBlue }]} />
+                <Text style={[styles.statusText, { color: colors.text }]}>{perfil?.estadoAcademico || 'ACTIVO'}</Text>
               </View>
             </View>
 
@@ -147,7 +157,7 @@ const PerfilScreen = ({ route }) => {
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>UNIVERSIDAD DE SONSONATE</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>UNIVERSIDAD DE SONSONATE</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -157,7 +167,6 @@ const PerfilScreen = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F2F2F2'
   },
   upperDecoration: {
     position: 'absolute',
@@ -184,17 +193,14 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '900',
-    color: Colors.black,
     letterSpacing: 2,
   },
   card: {
-    backgroundColor: Colors.white,
     borderRadius: 35,
     paddingHorizontal: 20,
     paddingBottom: 30,
     alignItems: 'center',
     elevation: 12,
-    shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 15,
     shadowOffset: { width: 0, height: 10 },
@@ -205,9 +211,8 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: -45, // Mitad del círculo sobresale
+    marginTop: -45,
     borderWidth: 5,
-    borderColor: Colors.white,
     marginBottom: 20,
   },
   avatarText: {
@@ -223,7 +228,6 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#666',
     marginBottom: 6,
     marginLeft: 5,
     letterSpacing: 0.5,
@@ -236,7 +240,6 @@ const styles = StyleSheet.create({
   valueText: {
     fontSize: 15,
     fontWeight: '700',
-    color: Colors.black,
   },
   statusBadge: {
     flexDirection: 'row',
@@ -256,14 +259,12 @@ const styles = StyleSheet.create({
   statusText: {
     fontSize: 14,
     fontWeight: '800',
-    color: Colors.black,
   },
   footer: {
     marginTop: 40,
     alignItems: 'center',
   },
   footerText: {
-    color: '#999',
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1,
@@ -276,9 +277,8 @@ const styles = StyleSheet.create({
   progressContainer: {
     height: 10,
     width: '100%',
-    backgroundColor: '#E0E0E0',
     borderRadius: 5,
-    marginBottom: 25, // Un poco de espacio antes del estado
+    marginBottom: 25,
     overflow: 'hidden',
   },
   progressBar: {
@@ -286,6 +286,5 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
-
 
 export default PerfilScreen;

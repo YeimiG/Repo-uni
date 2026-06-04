@@ -1,6 +1,6 @@
-
 import {
     SafeAreaView,
+    ScrollView,
     StyleSheet,
     Text,
     View
@@ -8,146 +8,119 @@ import {
 
 const NotasScreen = ({ route }) => {
 
-    const { materia } = route.params;
+  const { materia } = route.params;
 
-    return (
+  return (
 
-        <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container}>
 
-            <Text style={styles.titulo}>
-                Ciclo actual
+      <ScrollView>
+
+        <Text style={styles.titulo}>
+          Detalle de Notas
+        </Text>
+
+        <View style={styles.card}>
+
+          <Text style={styles.tituloMateria}>
+            📘 {materia.materia_nombre}
+          </Text>
+
+          <View style={styles.fila}>
+            <Text>Primer Parcial</Text>
+            <Text>{materia.nota1 || '0.0'}</Text>
+          </View>
+
+          <View style={styles.fila}>
+            <Text>Primer Laboratorio</Text>
+            <Text>{materia.nota2 || '0.0'}</Text>
+          </View>
+
+          <View style={styles.fila}>
+            <Text>Segundo Parcial</Text>
+            <Text>{materia.nota3 || '0.0'}</Text>
+          </View>
+
+          <View style={styles.fila}>
+            <Text>Segundo Laboratorio</Text>
+            <Text>{materia.nota4 || '0.0'}</Text>
+          </View>
+
+          <View style={styles.fila}>
+            <Text>Examen Final</Text>
+            <Text>{materia.nota5 || '0.0'}</Text>
+          </View>
+
+          <View style={styles.linea} />
+
+          <View style={styles.fila}>
+            <Text style={styles.finalLabel}>
+              Promedio Final
             </Text>
 
-            <View style={styles.card}>
+            <Text style={styles.finalValor}>
+              {materia.promedio_actual || '0.0'}
+            </Text>
+          </View>
 
-                <Text style={styles.tituloMateria}>
-                    {materia.materia_nombre}
-                </Text>
+        </View>
 
-                <View style={styles.fila}>
-                    <Text style={styles.label}>
-                        Primer parcial
-                    </Text>
+      </ScrollView>
 
-                    <Text style={styles.valor}>
-                        {materia.nota1 || '00'}
-                    </Text>
-                </View>
-
-                <View style={styles.fila}>
-                    <Text style={styles.label}>
-                        Primer laboratorio
-                    </Text>
-
-                    <Text style={styles.valor}>
-                        {materia.nota2 || '00'}
-                    </Text>
-                </View>
-
-                <View style={styles.fila}>
-                    <Text style={styles.label}>
-                        Segundo parcial
-                    </Text>
-
-                    <Text style={styles.valor}>
-                        {materia.nota3 || '00'}
-                    </Text>
-                </View>
-
-                <View style={styles.fila}>
-                    <Text style={styles.label}>
-                        Segundo laboratorio
-                    </Text>
-
-                    <Text style={styles.valor}>
-                        {materia.nota4 || '00'}
-                    </Text>
-                </View>
-
-                <View style={styles.fila}>
-                    <Text style={styles.label}>
-                        Parcial final
-                    </Text>
-
-                    <Text style={styles.valor}>
-                        {materia.nota5 || '00'}
-                    </Text>
-                </View>
-
-                <View style={styles.linea} />
-
-                <View style={styles.fila}>
-                    <Text style={styles.finalLabel}>
-                        Nota final
-                    </Text>
-
-                    <Text style={styles.finalValor}>
-                        {materia.promedio_actual || '00'}
-                    </Text>
-                </View>
-
-            </View>
-
-        </SafeAreaView>
-    );
+    </SafeAreaView>
+  );
 };
 
 const styles = StyleSheet.create({
 
-    container: {
-        flex: 1,
-        backgroundColor: '#EAEAEA',
-        padding: 15
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#F4F6F8',
+    padding: 15
+  },
 
-    titulo: {
-        fontSize: 34,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginVertical: 20
-    },
+  titulo: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 20
+  },
 
-    card: {
-        backgroundColor: '#B9D8E8',
-        borderRadius: 25,
-        padding: 25
-    },
+  card: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 20,
+    elevation: 4
+  },
 
-    tituloMateria: {
-        fontSize: 30,
-        fontWeight: 'bold',
-        marginBottom: 25
-    },
+  tituloMateria: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 25
+  },
 
-    fila: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 20
-    },
+  fila: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 18
+  },
 
-    label: {
-        fontSize: 22
-    },
+  linea: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#DDD',
+    marginVertical: 15
+  },
 
-    valor: {
-        fontSize: 22
-    },
+  finalLabel: {
+    fontSize: 20,
+    fontWeight: 'bold'
+  },
 
-    linea: {
-        borderBottomWidth: 3,
-        borderBottomColor: '#000',
-        marginVertical: 15
-    },
-
-    finalLabel: {
-        fontSize: 24,
-        fontWeight: 'bold'
-    },
-
-    finalValor: {
-        fontSize: 24,
-        fontWeight: 'bold'
-    }
+  finalValor: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1565C0'
+  }
 
 });
 

@@ -8,8 +8,10 @@ import LoginScreen from '../screens/LoginScreen';
 import PerfilScreen from '../screens/PerfilScreen';
 import ServiciosScreen from '../screens/ServiciosScreen';
 
+import ConfiguracionScreen from '../screens/ConfiguracionScreen.js';
 import MateriasScreen from '../screens/MateriasScreen.js';
 import NotasDetalleScreen from '../screens/NotasScreen.js';
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -58,6 +60,18 @@ function MainTabs({ route }) {
               size={28}
               color={color}
             />
+          )
+        }}
+      />
+
+       <Tab.Screen
+        name="Ajustes"
+        component={ConfiguracionScreen}
+        initialParams={{ idUsuario }}
+        options={{
+          tabBarLabel: 'Ajustes',
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="settings" size={28} color={color} />
           )
         }}
       />

@@ -3,10 +3,12 @@ const db = require("../../config/db");
 exports.obtenerPerfilEstudiante = async (req, res) => {
     const { idUsuario } = req.params;
 
+    console.log("========== PERFIL ==========");
+    console.log("ID RECIBIDO:", idUsuario);
+
     try {
-        // CORRECCIÓN: Cambiamos academico.estudiante por estudiantes.estudiante
         const query = `
-          SELECT 
+            SELECT 
                 p.primernombre AS nombre, 
                 p.primerapellido AS apellidos, 
                 c.nombre AS "nombreCarrera", 
@@ -18,10 +20,12 @@ exports.obtenerPerfilEstudiante = async (req, res) => {
             INNER JOIN personas.persona p ON e.idpersona = p.idpersona
             INNER JOIN academico.carrera c ON e.idcarrera = c.idcarrera
             INNER JOIN estudiantes.estadoestudiante ee ON e.idestado = ee.idestado
-            WHERE e.idusuario = $1;
+            WHERE e.idusuario = $1
         `;
 
         const result = await db.query(query, [idUsuario]);
+
+        console.log("RESULTADO:", result.rows);
 
         if (result.rows.length > 0) {
             res.json({

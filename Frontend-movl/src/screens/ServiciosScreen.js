@@ -11,16 +11,18 @@ import {
   View
 } from 'react-native';
 import { Colors } from '../constants/Colors';
+// 1. Importamos el hook de nuestro contexto global
+import { useTheme } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const ServiciosScreen = ({ navigation, route }) => {
-  // 1. Lógica de recuperación de ID (Doble vía para evitar el undefined)
-  // Revisa en los parámetros directos o en los parámetros anidados del Navigator
+  // Consumimos el estado y los colores dinámicos del Contexto
+  const { isDarkMode, colors } = useTheme();
+
   const idUsuario = route?.params?.idUsuario || route?.params?.params?.idUsuario;
 
   useEffect(() => {
-    // Esto te ayudará a ver en la consola si el ID llegó correctamente
     console.log("📌 ID de Usuario detectado en Servicios:", idUsuario);
   }, [idUsuario]);
 
@@ -40,69 +42,46 @@ const ServiciosScreen = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={Colors.primaryBlue} />
+    // 2. Fondo general dinámico
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       
-      {/* Encabezado Estilizado */}
-      <View style={[styles.header, { backgroundColor: Colors.primaryBlue }]}>
+      {/* El StatusBar cambia el color de los iconos de la barra según el modo */}
+      <StatusBar 
+        barStyle={isDarkMode ? "light-content" : "dark-content"} 
+        backgroundColor={isDarkMode ? colors.background : Colors.primaryBlue} 
+      />
+      
+      {/* Encabezado: Se mantiene azul o pasa a un color oscuro armónico en modo noche */}
+      <View style={[styles.header, { backgroundColor: isDarkMode ? colors.card : Colors.primaryBlue }]}>
         <Text style={styles.headerTitle}>SERVICIOS</Text>
         <View style={styles.underline} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        <Text style={styles.sectionLabel}>Gestión de Usuario</Text>
+        {/* Etiqueta de la sección dinámica */}
+        <Text style={[styles.sectionLabel, { color: colors.textSecondary }]}>Gestión de Usuario</Text>
         
-        {/* BOTÓN VER PERFIL */}
+        {/* BOTÓN VER PERFIL CON FONDO DINÁMICO */}
         <TouchableOpacity 
-          style={styles.mainCard} 
+          style={[styles.mainCard, { backgroundColor: colors.card }]} 
           onPress={irAPerfil}
           activeOpacity={0.8}
         >
-          <View style={[styles.iconBox, { backgroundColor: Colors.lightBlue }]}>
+          {/* El contenedor del emoji se adapta ligeramente en modo oscuro */}
+          <View style={[styles.iconBox, { backgroundColor: isDarkMode ? '#2d3748' : Colors.lightBlue }]}>
             <Text style={styles.iconEmoji}>👤</Text>
           </View>
+          
           <View style={styles.cardTextContent}>
-            <Text style={styles.cardTitle}>Mi Perfil</Text>
-            <Text style={styles.cardSubtitle}>Datos personales y académicos</Text>
+            {/* Títulos y subtítulos con textos dinámicos */}
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Mi Perfil</Text>
+            <Text style={[styles.cardSubtitle, { color: colors.textSecondary }]}>
+              Datos personales y académicos
+            </Text>
           </View>
-          <Text style={styles.chevron}>˃</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.sectionLabel}>Académico</Text>
-
-        {/* OTROS SERVICIOS (Ejemplos) */}
-        <View style={styles.row}>
-          <TouchableOpacity 
-            style={styles.smallCard} 
-            onPress={() => navigation.navigate('Notas', { idUsuario })}
-          >
-            <Text style={styles.iconEmojiSmall}>📝</Text>
-            <Text style={styles.smallCardTitle}>Notas</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity 
-            style={styles.smallCard} 
-            onPress={() => servicioProximamente("Horarios")}
-          >
-            <Text style={styles.iconEmojiSmall}>📅</Text>
-            <Text style={styles.smallCardTitle}>Horarios</Text>
-          </TouchableOpacity>
-        </View>
-
-        <TouchableOpacity 
-          style={styles.mainCard} 
-          onPress={() => servicioProximamente("Pagos")}
-          activeOpacity={0.8}
-        >
-          <View style={[styles.iconBox, { backgroundColor: '#E8F5E9' }]}>
-            <Text style={styles.iconEmoji}>💳</Text>
-          </View>
-          <View style={styles.cardTextContent}>
-            <Text style={styles.cardTitle}>Estado de Cuenta</Text>
-            <Text style={styles.cardSubtitle}>Consulta tus pagos y solvencias</Text>
-          </View>
-          <Text style={styles.chevron}>˃</Text>
+          
+          <Text style={[styles.chevron, { color: colors.textSecondary }]}>˃</Text>
         </TouchableOpacity>
 
       </ScrollView>
@@ -114,7 +93,6 @@ const ServiciosScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
-    backgroundColor: '#F5F7FA' 
   },
   header: { 
     height: 150, 
@@ -123,7 +101,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 40,
     borderBottomRightRadius: 40,
     elevation: 10,
-    shadowColor: '#000',
+    shadowColor: '#323236',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.3,
     shadowRadius: 5,
@@ -149,14 +127,12 @@ const styles = StyleSheet.create({
   sectionLabel: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#A0A0A0',
     marginBottom: 15,
     marginTop: 10,
     marginLeft: 5,
     textTransform: 'uppercase'
   },
   mainCard: { 
-    backgroundColor: 'white', 
     borderRadius: 20, 
     padding: 18, 
     flexDirection: 'row',
@@ -181,46 +157,14 @@ const styles = StyleSheet.create({
   cardTitle: { 
     fontSize: 18, 
     fontWeight: 'bold',
-    color: '#2D3436'
   },
   cardSubtitle: { 
     fontSize: 13, 
-    color: '#636E72',
     marginTop: 2
   },
   chevron: {
     fontSize: 22,
-    color: '#DFE6E9',
     fontWeight: 'bold'
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20
-  },
-  smallCard: {
-    backgroundColor: 'white',
-    width: (width / 2) - 30,
-    borderRadius: 20,
-    padding: 20,
-    alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
-  },
-  iconEmojiSmall: { fontSize: 30, marginBottom: 10 },
-  smallCardTitle: { 
-    fontWeight: 'bold', 
-    color: '#2D3436' 
-  },
-  footerInfo: {
-    padding: 10,
-    alignItems: 'center'
-  },
-  footerText: {
-    fontSize: 10,
-    color: '#B2BEC3'
   }
 });
 
