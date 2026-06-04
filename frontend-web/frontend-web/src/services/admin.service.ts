@@ -19,26 +19,38 @@ export async function getRoles() {
 }
 
 export async function crearUsuario(payload: {
-  correo: string; clave: string; idrol: number;
-  primernombre: string; primerapellido: string;
+  correo: string;
+  clave: string;
+  idrol: number;
 }) {
   try {
     const { data } = await api.post(`/api/admin/usuarios`, payload);
     return data;
   } catch (error: any) {
-    return { success: false, message: error.response?.data?.message || "Error al crear usuario" };
+    return {
+      success: false,
+      message: error.response?.data?.message || "Error al crear usuario",
+    };
   }
 }
 
-export async function editarUsuario(idusuario: number, payload: {
-  correo?: string; clave?: string;
-  primernombre?: string; primerapellido?: string;
-}) {
+export async function editarUsuario(
+  idusuario: number,
+  payload: {
+    correo?: string;
+    clave?: string;
+    idrol?: number;
+  },
+) {
   try {
     const { data } = await api.put(`/api/admin/usuarios/${idusuario}`, payload);
+
     return data;
   } catch (error: any) {
-    return { success: false, message: error.response?.data?.message || "Error al editar usuario" };
+    return {
+      success: false,
+      message: error.response?.data?.message || "Error al editar usuario",
+    };
   }
 }
 
@@ -62,28 +74,41 @@ export async function getDocentes() {
 
 export async function asignarDocente(idgrupo: number, iddocente: number) {
   try {
-    const { data } = await api.put(`/api/admin/grupos/${idgrupo}/asignar-docente`, { iddocente });
+    const { data } = await api.put(
+      `/api/admin/grupos/${idgrupo}/asignar-docente`,
+      { iddocente },
+    );
     return data;
   } catch (error) {
     return { success: false, message: "Error al asignar docente" };
   }
 }
 
-export async function moverEstudiante(idinscripcion: number, idgrupo_destino: number) {
+export async function moverEstudiante(
+  idinscripcion: number,
+  idgrupo_destino: number,
+) {
   try {
-    const { data } = await api.put(`/api/admin/inscripciones/${idinscripcion}/mover`, { idgrupo_destino });
+    const { data } = await api.put(
+      `/api/admin/inscripciones/${idinscripcion}/mover`,
+      { idgrupo_destino },
+    );
     return data;
   } catch (error: any) {
-    return { success: false, message: error.response?.data?.message || "Error al mover estudiante" };
+    return {
+      success: false,
+      message: error.response?.data?.message || "Error al mover estudiante",
+    };
   }
 }
 
 export async function getGruposDisponibles(idmateria: number) {
   try {
-    const { data } = await api.get(`/api/admin/materias/${idmateria}/grupos-disponibles`);
+    const { data } = await api.get(
+      `/api/admin/materias/${idmateria}/grupos-disponibles`,
+    );
     return data;
   } catch (error) {
     return { success: false, grupos: [] };
   }
 }
-

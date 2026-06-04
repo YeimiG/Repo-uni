@@ -283,7 +283,6 @@ export default function UsersPage() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {filteredUsuarios.map((u) => (
                       <tr key={u.idusuario} className="hover:bg-gray-50">
-
                         <td className="px-6 py-4 text-sm font-medium text-gray-900">
                           {u.idusuario}
                         </td>
@@ -298,13 +297,14 @@ export default function UsersPage() {
 
                         <td className="px-6 py-4">
                           <span
-                            className={`badge-${u.rol === "SUPER_ADMIN" ||
-                                u.rol === "ADMIN_ACADEMICO"
+                            className={`badge-${
+                              u.rol === "SUPER_ADMIN" ||
+                              u.rol === "ADMIN_ACADEMICO"
                                 ? "warning"
                                 : u.rol === "DOCENTE"
                                   ? "success"
                                   : "info"
-                              }`}
+                            }`}
                           >
                             {u.rol}
                           </span>
@@ -312,8 +312,9 @@ export default function UsersPage() {
 
                         <td className="px-6 py-4">
                           <span
-                            className={`badge-${u.activo ? "success" : "error"
-                              }`}
+                            className={`badge-${
+                              u.activo ? "success" : "error"
+                            }`}
                           >
                             {u.activo ? "Activo" : "Inactivo"}
                           </span>
@@ -329,17 +330,13 @@ export default function UsersPage() {
 
                           <button
                             onClick={() => handleToggle(u)}
-                            className={`text-xs px-3 py-1 rounded ${u.activo
-                                ? "btn-outline"
-                                : "btn-ieproes"
-                              }`}
+                            className={`text-xs px-3 py-1 rounded ${
+                              u.activo ? "btn-outline" : "btn-ieproes"
+                            }`}
                           >
-                            {u.activo
-                              ? "🚫 Desactivar"
-                              : "✅ Activar"}
+                            {u.activo ? "🚫 Desactivar" : "✅ Activar"}
                           </button>
                         </td>
-
                       </tr>
                     ))}
                   </tbody>

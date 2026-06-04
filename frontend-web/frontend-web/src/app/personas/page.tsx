@@ -4,11 +4,11 @@ import Sidebar from "@/components/Sidebar";
 import Toast from "@/components/Toast";
 import { useToast } from "@/hooks/useToast";
 import {
-    actualizarPersona,
-    crearPersona,
-    getPersonas,
-    getTiposDocumento,
-    togglePersona,
+  actualizarPersona,
+  crearPersona,
+  getPersonas,
+  getTiposDocumento,
+  togglePersona,
 } from "@/services/personas.service";
 import type { TipoDocumento } from "@/types";
 import Link from "next/link";
@@ -74,11 +74,28 @@ export default function PersonasPage() {
   }, []);
 
   const cargarTiposDocumento = async () => {
-    const res = await getTiposDocumento();
-    if (res.success) {
-      setTiposDocumento(res.data || []);
-    } else {
+    try {
+      const res = await getTiposDocumento();
+      if (res.success) {
+        setTiposDocumento(
+          (res.data || res.tipos || []).map((t: any) => ({
+            id: t.idtipodocumento ?? t.idTipoDocumento ?? t.id,
+            nombre: t.nombre,
+            abreviatura: t.abreviatura,
+          })),
+        );
+        return;
+      }
       showToast(res.message || "Error al cargar tipos de documento", "error");
+    } catch (e) {
+      // fallback a lista conocida (IDs 1-5)
+      setTiposDocumento([
+        { id: 1, nombre: "Documento Único de Identidad" },
+        { id: 2, nombre: "Pasaporte" },
+        { id: 3, nombre: "Carnet de Residente" },
+        { id: 4, nombre: "Número de Identificación Tributaria" },
+        { id: 5, nombre: "Carnet de Minoridad" },
+      ]);
     }
   };
 
@@ -357,15 +374,49 @@ export default function PersonasPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Número de Documento
+                <label className="block text-sm font-medium text-red-600 font-bold mb-1">
+                  Tipo de Documento *
+                </label>
+                <select
+                  className="input-ieproes border-2 border-red-400 focus:border-red-600"
+                  value={form.idTipoDocumento || 0}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      idTipoDocumento: parseInt(e.target.value, 10),
+                    })
+                  }
+                >
+                  <option value={0}>-- Selecciona tipo de documento --</option>
+                  {tiposDocumento &&
+                    tiposDocumento.length > 0 &&
+                    tiposDocumento.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.nombre}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-red-600 font-bold mb-1">
+                  Número de Documento *
                 </label>
                 <input
                   type="text"
-                  className="input-ieproes"
-                  value={form.numerodocumento}
+                  className="input-ieproes border-2 border-red-400 focus:border-red-600"
+                  value={form.numeroDocumento}
+                  placeholder={
+                    form.idTipoDocumento
+                      ? `Ej: Número de ${
+                          tiposDocumento.find(
+                            (t) => t.id === form.idTipoDocumento,
+                          )?.nombre || "documento"
+                        }`
+                      : "Primero selecciona el tipo de documento"
+                  }
+                  disabled={!form.idTipoDocumento}
                   onChange={(e) =>
-                    setForm({ ...form, numerodocumento: e.target.value })
+                    setForm({ ...form, numeroDocumento: e.target.value })
                   }
                 />
               </div>

@@ -42,12 +42,12 @@ exports.getUsuarios = async (req, res) => {
     }
 
     if (search) {
-  conditions.push(`
+      conditions.push(`
     u.correo ILIKE $${paramIndex}
   `);
-  params.push(`%${search}%`);
-  paramIndex++;
-}
+      params.push(`%${search}%`);
+      paramIndex++;
+    }
 
     if (conditions.length > 0) {
       query += " WHERE " + conditions.join(" AND ");
@@ -93,7 +93,7 @@ exports.getUsuarioById = async (req, res) => {
         ON u.idrol = r.idrol
       WHERE u.idusuario = $1
       `,
-      [id]
+      [id],
     );
 
     if (result.rows.length === 0) {
@@ -176,8 +176,8 @@ exports.crearUsuario = async (req, res) => {
     const claveHash = await bcrypt.hash(clave, salt);
 
     // Crear usuario
-  const result = await db.query(
-  `
+    const result = await db.query(
+      `
   INSERT INTO seguridad.usuario
   (
     correo,
@@ -201,12 +201,8 @@ exports.crearUsuario = async (req, res) => {
     activo,
     fechacreacion
   `,
-  [
-    correo.toLowerCase(),
-    claveHash,
-    idrol
-  ]
-);
+      [correo.toLowerCase(), claveHash, idrol],
+    );
 
     const usuario = result.rows[0];
 
@@ -300,10 +296,7 @@ exports.actualizarUsuario = async (req, res) => {
       updates.push(`idrol = $${paramIndex++}`);
       params.push(idrol);
     }
-    if (idpersona !== undefined) {
-      updates.push(`idpersona = $${paramIndex++}`);
-      params.push(idpersona || null);
-    }
+
     if (activo !== undefined) {
       updates.push(`activo = $${paramIndex++}`);
       params.push(activo);
